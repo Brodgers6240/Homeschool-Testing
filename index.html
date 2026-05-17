@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Homeschool Standardized Practice Test</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #1a2236;
+    --muted: #5b667a;
+    --brand: #2b5fd9;
+    --brand-dark: #1e4ab3;
+    --good: #1f9d55;
+    --bad: #c53030;
+    --warn: #c97b00;
+    --border: #e3e6ee;
+    --shadow: 0 4px 18px rgba(20,30,60,.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+  header.app {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 14px 20px; background: var(--card);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+  }
+  header.app h1 { font-size: 18px; margin: 0; }
+  header.app .meta { display: flex; gap: 10px; align-items: center; }
+  .timer {
+    font-variant-numeric: tabular-nums; font-weight: 600;
+    padding: 6px 10px; border-radius: 8px; background: #eef2ff; color: var(--brand-dark);
+    border: 1px solid #d6deff;
+  }
+  .timer.warn { background: #fff5e6; color: var(--warn); border-color: #ffd9a8; }
+  .timer.danger { background: #fde8e8; color: var(--bad); border-color: #f5b5b5; }
+  button {
+    font: inherit; cursor: pointer; padding: 10px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    transition: background .15s ease, border-color .15s ease;
+  }
+  button:hover { background: #f0f3fb; }
+  button.primary { background: var(--brand); color: white; border-color: var(--brand); }
+  button.primary:hover { background: var(--brand-dark); }
+  button.ghost { background: transparent; }
+  button.danger { background: var(--bad); color: white; border-color: var(--bad); }
+  button.danger:hover { background: #a02121; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 24px; margin-bottom: 16px; }
+  h2 { margin: 0 0 8px; }
+  p.muted { color: var(--muted); margin: 4px 0 0; }
+  .grid { display: grid; gap: 12px; }
+  .grid.grades { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .grid.subjects { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .tile {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--card);
+    padding: 18px; text-align: left; cursor: pointer; transition: transform .1s ease, border-color .15s;
+  }
+  .tile:hover { border-color: var(--brand); transform: translateY(-1px); }
+  .tile h3 { margin: 0 0 4px; font-size: 16px; }
+  .tile .sub { color: var(--muted); font-size: 13px; }
+  .tile.disabled { opacity: .55; cursor: not-allowed; }
+  .tile.disabled:hover { transform: none; border-color: var(--border); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { background: #eef2ff; color: var(--brand-dark); padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; border: 1px solid #d6deff; }
+  .pill.warn { background: #fff5e6; color: var(--warn); border-color: #ffd9a8; }
+  .pill.good { background: #e6f6ec; color: var(--good); border-color: #b8e2c6; }
+  .pill.bad  { background: #fde8e8; color: var(--bad); border-color: #f5b5b5; }
+
+  .qmeta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .passage {
+    background: #fafbff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 14px; line-height: 1.55;
+  }
+  .passage h4 { margin: 0 0 6px; }
+  .qtext { font-size: 17px; line-height: 1.5; margin-bottom: 14px; }
+  .choices { display: grid; gap: 10px; }
+  .choice {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer;
+    background: var(--card); transition: border-color .15s, background .15s;
+  }
+  .choice:hover { border-color: var(--brand); background: #f5f7ff; }
+  .choice input { margin-top: 3px; }
+  .choice .letter { font-weight: 700; color: var(--brand); width: 18px; }
+  .choice.selected { border-color: var(--brand); background: #eef2ff; }
+  .choice.correct { border-color: var(--good); background: #e8f7ee; }
+  .choice.incorrect { border-color: var(--bad); background: #fdecec; }
+  .nav { display: flex; gap: 10px; justify-content: space-between; margin-top: 18px; }
+  .progress { height: 8px; background: #e9ecf4; border-radius: 999px; overflow: hidden; margin: 6px 0 14px; }
+  .progress > div { height: 100%; background: var(--brand); width: 0%; transition: width .2s; }
+
+  /* Results */
+  .score-hero { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .score-circle {
+    width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: conic-gradient(var(--brand) calc(var(--p) * 1%), #e9ecf4 0);
+  }
+  .score-circle .inner {
+    width: 104px; height: 104px; background: var(--card); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .score-circle .inner .pct { font-size: 28px; font-weight: 700; }
+  .score-circle .inner .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .breakdown { display: grid; gap: 8px; margin-top: 12px; }
+  .breakdown .row-bd { display: grid; grid-template-columns: 1fr 80px 80px; gap: 8px; align-items: center;
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; }
+  .review-q { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .review-q .badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; font-weight: 600; }
+  .review-q .badge.ok { background: #e6f6ec; color: var(--good); }
+  .review-q .badge.no { background: #fde8e8; color: var(--bad); }
+  .review-q .badge.skip { background: #f0f0f4; color: var(--muted); }
+  .review-q .explain { background: #fffbe6; border: 1px solid #f1e3a0; border-radius: 8px;
+    padding: 10px 12px; margin-top: 10px; font-size: 14px; }
+
+  .modal-back {
+    position: fixed; inset: 0; background: rgba(15,20,40,.5); display: none;
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-back.show { display: flex; }
+  .modal { background: var(--card); border-radius: 14px; padding: 22px; max-width: 460px; width: 92%;
+    box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  .modal h3 { margin: 0 0 6px; }
+  .modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+  .hidden { display: none !important; }
+
+  .qjump { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .qjump button { padding: 6px 10px; font-size: 13px; border-radius: 8px; }
+  .qjump button.cur { border-color: var(--brand); background: #eef2ff; }
+  .qjump button.answered { background: #e6f6ec; border-color: #b8e2c6; }
+  .qjump button.flagged { background: #fff5e6; border-color: #ffd9a8; }
+
+  @media (max-width: 640px) {
+    header.app { flex-wrap: wrap; }
+    .wrap { padding: 16px 12px 80px; }
+    .card { padding: 16px; }
+    .score-hero { flex-direction: column; align-items: flex-start; }
+    .breakdown .row-bd { grid-template-columns: 1fr 60px 60px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <h1>📘 Homeschool Practice Test</h1>
+  <div class="meta">
+    <span id="ctxLabel" class="pill hidden"></span>
+    <span id="timerLabel" class="timer hidden">--:--</span>
+    <button id="btnHome" class="ghost hidden">🏠 Home</button>
+    <button id="btnExit" class="danger hidden">Exit Test</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <div class="card">
+      <h2>Welcome</h2>
+      <p class="muted">
+        Stanford 10–style practice test for homeschoolers. Pick a grade to begin.
+        You'll see test scores, item-by-item review, and downloadable results when you finish.
+      </p>
+    </div>
+    <div class="card">
+      <h2>Select grade level</h2>
+      <p class="muted">Grades with fully-loaded question banks are marked Ready. Others show a starter set.</p>
+      <div class="grid grades" id="gradeGrid"></div>
+    </div>
+    <div class="card">
+      <h2>How it works</h2>
+      <p style="color: var(--muted); line-height: 1.6;">
+        Each subject is timed like a real Stanford 10 subtest. A countdown timer is visible during the test and auto-submits when it reaches zero.
+        You can flag questions for review, exit at any time, and export your full results (questions, answers, what you chose, time spent) as a CSV file when you're done.
+      </p>
+    </div>
+  </section>
+
+  <!-- SUBJECT SELECT -->
+  <section id="screen-subject" class="screen hidden">
+    <div class="card">
+      <div class="row">
+        <h2 id="subjectTitle" style="margin:0;">Choose a subject</h2>
+        <div class="spacer"></div>
+        <button id="btnBackToHome" class="ghost">← Back to grades</button>
+      </div>
+      <p class="muted" id="subjectSubtitle">Pick a single subject or take the full battery.</p>
+    </div>
+    <div class="card">
+      <div class="grid subjects" id="subjectGrid"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">Full battery</h3>
+      <p class="muted">All available subjects, back-to-back, with each section timed independently.</p>
+      <button id="btnFullBattery" class="primary">Start full battery</button>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <section id="screen-test" class="screen hidden">
+    <div class="card">
+      <div class="row">
+        <div>
+          <h2 id="testSectionTitle" style="margin:0;">Section</h2>
+          <p class="muted" id="testSectionInfo">Question 1 of N</p>
+        </div>
+        <div class="spacer"></div>
+        <button id="btnFlag" class="ghost">🚩 Flag for review</button>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+      <div id="questionArea"></div>
+      <div class="nav">
+        <button id="btnPrev">← Previous</button>
+        <div class="row" style="gap:8px;">
+          <button id="btnNext" class="primary">Next →</button>
+          <button id="btnSubmitSection" class="primary hidden">Submit section</button>
+        </div>
+      </div>
+      <div class="qjump" id="qjump"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="screen hidden">
+    <div class="card">
+      <h2 id="resultsTitle">Your results</h2>
+      <p class="muted" id="resultsSubtitle"></p>
+      <div class="score-hero" style="margin-top:14px;">
+        <div class="score-circle" id="scoreCircle" style="--p:0;">
+          <div class="inner"><div class="pct" id="scorePct">0%</div><div class="lbl">Overall</div></div>
+        </div>
+        <div>
+          <div style="font-size:18px; font-weight:600;" id="scoreFrac">0 / 0</div>
+          <div class="muted" id="scoreTime"></div>
+          <div class="muted" id="scoreAnalysis" style="margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="breakdown" id="subjectBreakdown"></div>
+      <div class="row" style="margin-top:16px;">
+        <button id="btnExportCsv" class="primary">⬇ Export CSV</button>
+        <button id="btnExportJson">⬇ Export JSON</button>
+        <button id="btnPrint">🖨 Print / Save PDF</button>
+        <div class="spacer"></div>
+        <button id="btnRetake" class="ghost">Retake</button>
+        <button id="btnResultsHome" class="ghost">🏠 Home</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">Item-by-item review</h3>
+      <p class="muted">Green = correct, red = incorrect, gray = skipped. Explanations below each item.</p>
+      <div id="reviewList"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Confirmation modal -->
+<div class="modal-back" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Are you sure?</h3>
+    <p class="muted" id="modalBody">This will end the test.</p>
+    <div class="actions">
+      <button id="modalCancel" class="ghost">Cancel</button>
+      <button id="modalConfirm" class="danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   QUESTION BANK
+   Schema:
+     QUESTION_BANK[grade][subjectKey] = {
+       name: "Display name",
+       timeLimitSec: 1800,            // section time in seconds
+       questions: [
+         {
+           id: "g5-read-1",
+           passage: "...",            // optional, shared by following items if same passageId
+           passageTitle: "...",       // optional
+           passageId: "p1",           // questions sharing passageId display the passage together
+           text: "Question text...",
+           choices: ["...", "...", "...", "..."],
+           correct: 0,                // index 0..3
+           explanation: "...",
+           skill: "Main idea"         // optional tag for analysis
+         }, ...
+       ]
+     }
+   ========================================================================== */
+
+const QUESTION_BANK = {};
+
+/* QUESTION_BANK content is injected below by helper calls so the file stays organized. */
+function addSection(grade, key, name, timeLimitSec, questions) {
+  if (!QUESTION_BANK[grade]) QUESTION_BANK[grade] = {};
+  QUESTION_BANK[grade][key] = { name, timeLimitSec, questions };
+}
+
+/* --- GRADE 5 --- */
+addSection(5, "reading", "Reading Comprehension", 30*60, [
+  // Passage 1 — nonfiction
+  { id:"g5r1", passageId:"g5p1", passageTitle:"Hummingbirds in Motion",
+    passage:"Hummingbirds are the smallest birds on Earth, yet they are among the most powerful flyers. Their wings beat so quickly — sometimes more than 70 times per second — that they make a humming sound. This rapid wingbeat lets a hummingbird hover in place while it sips nectar from a flower. Hummingbirds can also fly backward and even upside down for short bursts, something no other bird can do.\n\nBecause flying takes so much energy, hummingbirds must eat almost constantly. A hummingbird may visit a thousand flowers in a single day. At night, when food is unavailable, its body slows down into a deep sleep called torpor. Its heart rate and temperature drop sharply, allowing it to survive until morning.",
+    text:"What is the main idea of this passage?",
+    choices:["Hummingbirds make a humming sound when they fly.","Hummingbirds have special abilities that help them survive.","Hummingbirds sleep deeply at night.","Hummingbirds visit many flowers each day."],
+    correct:1, skill:"Main idea",
+    explanation:"The passage describes several survival adaptations: hovering, fast wingbeats, constant eating, and torpor. The other answers are details that support this main idea." },
+  { id:"g5r2", passageId:"g5p1", passageTitle:"Hummingbirds in Motion",
+    passage:"Hummingbirds are the smallest birds on Earth, yet they are among the most powerful flyers. Their wings beat so quickly — sometimes more than 70 times per second — that they make a humming sound. This rapid wingbeat lets a hummingbird hover in place while it sips nectar from a flower. Hummingbirds can also fly backward and even upside down for short bursts, something no other bird can do.\n\nBecause flying takes so much energy, hummingbirds must eat almost constantly. A hummingbird may visit a thousand flowers in a single day. At night, when food is unavailable, its body slows down into a deep sleep called torpor. Its heart rate and temperature drop sharply, allowing it to survive until morning.",
+    text:"In the passage, what does the word \"torpor\" most nearly mean?",
+    choices:["A loud humming noise","A type of flower","A deep, slowed-down sleep","A long flight"],
+    correct:2, skill:"Vocabulary in context",
+    explanation:"The passage defines torpor by describing it: \"a deep sleep\" where heart rate and temperature drop sharply." },
+  { id:"g5r3", passageId:"g5p1", passageTitle:"Hummingbirds in Motion",
+    passage:"Hummingbirds are the smallest birds on Earth, yet they are among the most powerful flyers. Their wings beat so quickly — sometimes more than 70 times per second — that they make a humming sound. This rapid wingbeat lets a hummingbird hover in place while it sips nectar from a flower. Hummingbirds can also fly backward and even upside down for short bursts, something no other bird can do.\n\nBecause flying takes so much energy, hummingbirds must eat almost constantly. A hummingbird may visit a thousand flowers in a single day. At night, when food is unavailable, its body slows down into a deep sleep called torpor. Its heart rate and temperature drop sharply, allowing it to survive until morning.",
+    text:"Why must hummingbirds eat so frequently?",
+    choices:["Their wings beat very quickly.","Flying uses a great deal of energy.","Flowers do not have much nectar.","They cannot fly at night."],
+    correct:1, skill:"Cause and effect",
+    explanation:"The passage directly states: \"Because flying takes so much energy, hummingbirds must eat almost constantly.\"" },
+  { id:"g5r4", passageId:"g5p1", passageTitle:"Hummingbirds in Motion",
+    passage:"Hummingbirds are the smallest birds on Earth, yet they are among the most powerful flyers. Their wings beat so quickly — sometimes more than 70 times per second — that they make a humming sound. This rapid wingbeat lets a hummingbird hover in place while it sips nectar from a flower. Hummingbirds can also fly backward and even upside down for short bursts, something no other bird can do.\n\nBecause flying takes so much energy, hummingbirds must eat almost constantly. A hummingbird may visit a thousand flowers in a single day. At night, when food is unavailable, its body slows down into a deep sleep called torpor. Its heart rate and temperature drop sharply, allowing it to survive until morning.",
+    text:"Which sentence from the passage best supports the idea that hummingbirds are unique flyers?",
+    choices:["\"Hummingbirds are the smallest birds on Earth.\"","\"Hummingbirds can also fly backward and even upside down... no other bird can do.\"","\"A hummingbird may visit a thousand flowers in a single day.\"","\"Its heart rate and temperature drop sharply.\""],
+    correct:1, skill:"Text evidence",
+    explanation:"\"No other bird can do\" directly supports their uniqueness as flyers." },
+  { id:"g5r5", passageId:"g5p1", passageTitle:"Hummingbirds in Motion",
+    passage:"Hummingbirds are the smallest birds on Earth, yet they are among the most powerful flyers. Their wings beat so quickly — sometimes more than 70 times per second — that they make a humming sound. This rapid wingbeat lets a hummingbird hover in place while it sips nectar from a flower. Hummingbirds can also fly backward and even upside down for short bursts, something no other bird can do.\n\nBecause flying takes so much energy, hummingbirds must eat almost constantly. A hummingbird may visit a thousand flowers in a single day. At night, when food is unavailable, its body slows down into a deep sleep called torpor. Its heart rate and temperature drop sharply, allowing it to survive until morning.",
+    text:"The author's main purpose in writing this passage is to —",
+    choices:["entertain readers with a story about a hummingbird","persuade people to feed hummingbirds","inform readers about how hummingbirds live","describe what flowers hummingbirds prefer"],
+    correct:2, skill:"Author's purpose",
+    explanation:"The passage gives facts about hummingbird behavior and biology — its purpose is to inform." },
+
+  // Passage 2 — fiction
+  { id:"g5r6", passageId:"g5p2", passageTitle:"The Borrowed Bike",
+    passage:"Maya stared at the bike leaning against the garage. It was her older brother Eli's, and he had told her — more than once — not to ride it. The seat was too high anyway. But the new ice cream shop was three blocks away, and walking in the July heat felt like wading through warm syrup.\n\n\"Just this once,\" she whispered, wheeling the bike to the driveway. The seat wobbled. The pedals were stiff. Three blocks suddenly seemed very far.\n\nShe made it half a block before the front tire jolted into a pothole. The handlebars twisted, and Maya tumbled into the grass. The bike clattered beside her, its front wheel bent slightly out of true.\n\nMaya picked herself up. Her knee stung, but worse than that was the lump rising in her throat. She would have to tell Eli. She wheeled the bike home slowly, rehearsing the words.",
+    text:"Why does Maya decide to ride Eli's bike?",
+    choices:["She wants to make Eli angry.","It is too hot to walk to the ice cream shop.","Eli told her she could.","Her own bike is broken."],
+    correct:1, skill:"Story details",
+    explanation:"The passage explains that walking in the July heat felt like \"wading through warm syrup,\" so she took the bike instead." },
+  { id:"g5r7", passageId:"g5p2", passageTitle:"The Borrowed Bike",
+    passage:"Maya stared at the bike leaning against the garage. It was her older brother Eli's, and he had told her — more than once — not to ride it. The seat was too high anyway. But the new ice cream shop was three blocks away, and walking in the July heat felt like wading through warm syrup.\n\n\"Just this once,\" she whispered, wheeling the bike to the driveway. The seat wobbled. The pedals were stiff. Three blocks suddenly seemed very far.\n\nShe made it half a block before the front tire jolted into a pothole. The handlebars twisted, and Maya tumbled into the grass. The bike clattered beside her, its front wheel bent slightly out of true.\n\nMaya picked herself up. Her knee stung, but worse than that was the lump rising in her throat. She would have to tell Eli. She wheeled the bike home slowly, rehearsing the words.",
+    text:"The phrase \"wading through warm syrup\" is an example of —",
+    choices:["a metaphor","a simile","alliteration","onomatopoeia"],
+    correct:1, skill:"Figurative language",
+    explanation:"\"Wading through warm syrup\" uses \"like\" (compared earlier as \"felt like\"), making it a simile — a comparison using like or as." },
+  { id:"g5r8", passageId:"g5p2", passageTitle:"The Borrowed Bike",
+    passage:"Maya stared at the bike leaning against the garage. It was her older brother Eli's, and he had told her — more than once — not to ride it. The seat was too high anyway. But the new ice cream shop was three blocks away, and walking in the July heat felt like wading through warm syrup.\n\n\"Just this once,\" she whispered, wheeling the bike to the driveway. The seat wobbled. The pedals were stiff. Three blocks suddenly seemed very far.\n\nShe made it half a block before the front tire jolted into a pothole. The handlebars twisted, and Maya tumbled into the grass. The bike clattered beside her, its front wheel bent slightly out of true.\n\nMaya picked herself up. Her knee stung, but worse than that was the lump rising in her throat. She would have to tell Eli. She wheeled the bike home slowly, rehearsing the words.",
+    text:"What is the most likely theme of this story?",
+    choices:["Bikes are dangerous on hot days.","Doing something you were told not to do can lead to trouble.","Older brothers are unfair.","Ice cream is worth any risk."],
+    correct:1, skill:"Theme",
+    explanation:"The story shows the consequence of disobeying — the bike gets damaged and Maya feels guilty. That's the lesson." },
+  { id:"g5r9", passageId:"g5p2", passageTitle:"The Borrowed Bike",
+    passage:"Maya stared at the bike leaning against the garage. It was her older brother Eli's, and he had told her — more than once — not to ride it. The seat was too high anyway. But the new ice cream shop was three blocks away, and walking in the July heat felt like wading through warm syrup.\n\n\"Just this once,\" she whispered, wheeling the bike to the driveway. The seat wobbled. The pedals were stiff. Three blocks suddenly seemed very far.\n\nShe made it half a block before the front tire jolted into a pothole. The handlebars twisted, and Maya tumbled into the grass. The bike clattered beside her, its front wheel bent slightly out of true.\n\nMaya picked herself up. Her knee stung, but worse than that was the lump rising in her throat. She would have to tell Eli. She wheeled the bike home slowly, rehearsing the words.",
+    text:"At the end of the passage, Maya's feelings can best be described as —",
+    choices:["proud and excited","angry at Eli","worried and guilty","relieved and amused"],
+    correct:2, skill:"Character's feelings",
+    explanation:"The \"lump rising in her throat\" and her slow walk home \"rehearsing the words\" show worry and guilt." },
+  { id:"g5r10", passageId:"g5p2", passageTitle:"The Borrowed Bike",
+    passage:"Maya stared at the bike leaning against the garage. It was her older brother Eli's, and he had told her — more than once — not to ride it. The seat was too high anyway. But the new ice cream shop was three blocks away, and walking in the July heat felt like wading through warm syrup.\n\n\"Just this once,\" she whispered, wheeling the bike to the driveway. The seat wobbled. The pedals were stiff. Three blocks suddenly seemed very far.\n\nShe made it half a block before the front tire jolted into a pothole. The handlebars twisted, and Maya tumbled into the grass. The bike clattered beside her, its front wheel bent slightly out of true.\n\nMaya picked herself up. Her knee stung, but worse than that was the lump rising in her throat. She would have to tell Eli. She wheeled the bike home slowly, rehearsing the words.",
+    text:"What does \"bent slightly out of true\" most likely mean in this passage?",
+    choices:["No longer straight","Painted a new color","Stuck in mud","Missing a part"],
+    correct:0, skill:"Vocabulary in context",
+    explanation:"After hitting the pothole and twisting, the wheel is no longer perfectly straight — \"out of true\" is a bike-mechanic term for a wheel that wobbles off line." },
+
+  // Passage 3 — short info
+  { id:"g5r11", passageId:"g5p3", passageTitle:"The Library Stays Open",
+    passage:"For more than a year, neighbors of Riverside Elementary worried that their small public library would close. The city council said it could not afford to keep the building open more than two days a week. Then a group of fifth-graders decided to act. They wrote letters to the council, gathered 600 signatures from neighbors, and read aloud at the council meeting why the library mattered to them. In April, the council voted to keep the library open five days a week.",
+    text:"What problem is described in the passage?",
+    choices:["The library was going to be closed most of the week.","The library did not have enough books.","The students could not get library cards.","The city council did not allow children at meetings."],
+    correct:0, skill:"Problem and solution",
+    explanation:"The passage says the council planned to keep the library open only two days a week — the problem the students set out to fix." },
+  { id:"g5r12", passageId:"g5p3", passageTitle:"The Library Stays Open",
+    passage:"For more than a year, neighbors of Riverside Elementary worried that their small public library would close. The city council said it could not afford to keep the building open more than two days a week. Then a group of fifth-graders decided to act. They wrote letters to the council, gathered 600 signatures from neighbors, and read aloud at the council meeting why the library mattered to them. In April, the council voted to keep the library open five days a week.",
+    text:"Which sentence best describes the result of the students' actions?",
+    choices:["The students learned how to write letters.","The library closed permanently.","The library was kept open more days each week.","The neighbors paid for the library themselves."],
+    correct:2, skill:"Conclusions",
+    explanation:"The final sentence states the library will stay open five days a week — a direct result of the students' efforts." },
+  { id:"g5r13", passageId:"g5p3", passageTitle:"The Library Stays Open",
+    passage:"For more than a year, neighbors of Riverside Elementary worried that their small public library would close. The city council said it could not afford to keep the building open more than two days a week. Then a group of fifth-graders decided to act. They wrote letters to the council, gathered 600 signatures from neighbors, and read aloud at the council meeting why the library mattered to them. In April, the council voted to keep the library open five days a week.",
+    text:"Which word best describes the fifth-graders in the story?",
+    choices:["careless","determined","fearful","disappointed"],
+    correct:1, skill:"Character traits",
+    explanation:"The students took many actions — letters, signatures, speaking publicly — which shows determination." },
+  { id:"g5r14", passageId:"g5p3", passageTitle:"The Library Stays Open",
+    passage:"For more than a year, neighbors of Riverside Elementary worried that their small public library would close. The city council said it could not afford to keep the building open more than two days a week. Then a group of fifth-graders decided to act. They wrote letters to the council, gathered 600 signatures from neighbors, and read aloud at the council meeting why the library mattered to them. In April, the council voted to keep the library open five days a week.",
+    text:"You can conclude from the passage that —",
+    choices:["the library had no librarians","kids' voices can influence decisions","Riverside Elementary closed","the city had plenty of money"],
+    correct:1, skill:"Inference",
+    explanation:"The students' actions led directly to the council changing its decision, supporting the idea that kids' voices matter." },
+  { id:"g5r15", passageId:"g5p3", passageTitle:"The Library Stays Open",
+    passage:"For more than a year, neighbors of Riverside Elementary worried that their small public library would close. The city council said it could not afford to keep the building open more than two days a week. Then a group of fifth-graders decided to act. They wrote letters to the council, gathered 600 signatures from neighbors, and read aloud at the council meeting why the library mattered to them. In April, the council voted to keep the library open five days a week.",
+    text:"What is the best title for this passage?",
+    choices:["A Day at the Library","How a City Council Works","Students Save Their Library","The History of Riverside Elementary"],
+    correct:2, skill:"Title selection",
+    explanation:"The passage is about students taking action that saved the library — choice C best captures both the actors and the outcome." },
+]);
+
+addSection(5, "vocabulary", "Vocabulary", 15*60, [
+  { id:"g5v1", text:"Choose the word that means most nearly the same as \"enormous.\"",
+    choices:["tiny","huge","quiet","fast"], correct:1, skill:"Synonyms",
+    explanation:"\"Enormous\" means extremely large — \"huge\" is the closest synonym." },
+  { id:"g5v2", text:"Choose the word that means most nearly the same as \"rapid.\"",
+    choices:["slow","fast","cold","heavy"], correct:1, skill:"Synonyms",
+    explanation:"\"Rapid\" means very quick or fast." },
+  { id:"g5v3", text:"Choose the word that means most nearly the same as \"generous.\"",
+    choices:["selfish","giving","careful","tired"], correct:1, skill:"Synonyms",
+    explanation:"A generous person freely gives to others." },
+  { id:"g5v4", text:"Choose the word that means most nearly the same as \"frequent.\"",
+    choices:["rare","often","loud","sad"], correct:1, skill:"Synonyms",
+    explanation:"Something \"frequent\" happens often." },
+  { id:"g5v5", text:"Choose the word that means most nearly the same as \"weary.\"",
+    choices:["tired","angry","busy","new"], correct:0, skill:"Synonyms",
+    explanation:"\"Weary\" means tired or exhausted." },
+  { id:"g5v6", text:"Choose the word that means the OPPOSITE of \"ancient.\"",
+    choices:["old","modern","heavy","empty"], correct:1, skill:"Antonyms",
+    explanation:"Ancient means very old; modern means very new — opposites." },
+  { id:"g5v7", text:"Choose the word that means the OPPOSITE of \"timid.\"",
+    choices:["shy","kind","bold","quiet"], correct:2, skill:"Antonyms",
+    explanation:"Timid means easily frightened; bold means brave or confident." },
+  { id:"g5v8", text:"Choose the word that means the OPPOSITE of \"abundant.\"",
+    choices:["plentiful","scarce","heavy","wet"], correct:1, skill:"Antonyms",
+    explanation:"Abundant = a lot. Scarce = very little. They are opposites." },
+  { id:"g5v9", text:"Choose the word that means the OPPOSITE of \"depart.\"",
+    choices:["arrive","leave","speak","wait"], correct:0, skill:"Antonyms",
+    explanation:"Depart means to leave; arrive means to come to a place." },
+  { id:"g5v10", text:"Choose the word that means the OPPOSITE of \"praise.\"",
+    choices:["thank","reward","scold","explain"], correct:2, skill:"Antonyms",
+    explanation:"Praise = approval and compliments. Scold = strong criticism." },
+  { id:"g5v11", text:"The rain was so heavy it began to FLOOD the streets. \"Flood\" most nearly means —",
+    choices:["dry up","overflow with water","clean carefully","wash the cars"], correct:1, skill:"Context",
+    explanation:"In context, the heavy rain causes streets to overflow — flood means overflow with water." },
+  { id:"g5v12", text:"Maria gave a BRIEF answer because she was in a hurry. \"Brief\" most nearly means —",
+    choices:["long","short","funny","loud"], correct:1, skill:"Context",
+    explanation:"Because she was in a hurry, her answer was short." },
+  { id:"g5v13", text:"The hikers were CAUTIOUS as they crossed the icy bridge. \"Cautious\" most nearly means —",
+    choices:["careful","silly","sleepy","angry"], correct:0, skill:"Context",
+    explanation:"On an icy bridge you would be careful — that's what cautious means." },
+  { id:"g5v14", text:"The library was so QUIET we could hear the clock ticking. \"Quiet\" most nearly means —",
+    choices:["dark","silent","crowded","empty"], correct:1, skill:"Context",
+    explanation:"Hearing a clock tick happens only when a place is silent." },
+  { id:"g5v15", text:"Anna was RELUCTANT to try the new food, but she finally took a bite. \"Reluctant\" most nearly means —",
+    choices:["eager","unwilling","excited","sleepy"], correct:1, skill:"Context",
+    explanation:"\"Finally took a bite\" tells us she didn't want to at first — reluctant means unwilling." },
+]);
+
+addSection(5, "language", "Language / Grammar", 20*60, [
+  { id:"g5l1", text:"Choose the sentence that is written correctly.",
+    choices:["Me and my brother went fishing.","My brother and me went fishing.","My brother and I went fishing.","I and my brother went fishing."],
+    correct:2, skill:"Pronoun usage",
+    explanation:"Use \"I\" (subject pronoun) when the pronoun is part of the subject. Politeness puts the other person first: \"My brother and I.\"" },
+  { id:"g5l2", text:"Which sentence uses commas correctly?",
+    choices:["We bought apples oranges and bananas.","We bought apples, oranges, and bananas.","We bought, apples oranges and bananas.","We, bought apples oranges and bananas."],
+    correct:1, skill:"Commas in a series",
+    explanation:"Items in a list of three or more are separated by commas." },
+  { id:"g5l3", text:"Which word is a proper noun?",
+    choices:["river","city","Mississippi","mountain"], correct:2, skill:"Proper nouns",
+    explanation:"Proper nouns name specific people, places, or things and are capitalized. \"Mississippi\" is a specific river/state." },
+  { id:"g5l4", text:"Choose the correct form: \"Yesterday, the dog ___ the ball.\"",
+    choices:["catch","catches","caught","catching"], correct:2, skill:"Verb tense",
+    explanation:"\"Yesterday\" signals past tense. The past tense of \"catch\" is \"caught.\"" },
+  { id:"g5l5", text:"Which sentence is punctuated correctly?",
+    choices:["\"Where are you going,\" she asked?","\"Where are you going?\" she asked.","Where are you going? \"she asked.\"","\"Where are you going\"? she asked."],
+    correct:1, skill:"Quotation punctuation",
+    explanation:"The question mark goes inside the quotation marks because it belongs to what was spoken. The sentence ends with a period." },
+  { id:"g5l6", text:"Which sentence has a subject-verb agreement error?",
+    choices:["The boys run fast.","She walks to school.","The team play tonight.","He sings beautifully."],
+    correct:2, skill:"Subject-verb agreement",
+    explanation:"\"Team\" is a singular collective noun in American English and takes \"plays,\" not \"play.\"" },
+  { id:"g5l7", text:"Which is the BEST way to combine these sentences? \"The cat is small. The cat is gray. The cat sleeps a lot.\"",
+    choices:["The cat is small the cat is gray and sleeps a lot.","The small gray cat sleeps a lot.","The cat, small and gray, and sleeps a lot.","Small and gray the cat that sleeps a lot."],
+    correct:1, skill:"Sentence combining",
+    explanation:"Combine adjectives before the noun for a clear, concise sentence." },
+  { id:"g5l8", text:"Which word should be capitalized in this sentence? \"we visited new orleans last summer.\"",
+    choices:["only \"we\"","\"we\" and \"new orleans\"","\"we,\" \"new orleans,\" and \"summer\"","\"summer\" only"],
+    correct:1, skill:"Capitalization",
+    explanation:"Capitalize the first word of a sentence (\"We\") and proper nouns (\"New Orleans\"). Seasons are not capitalized." },
+  { id:"g5l9", text:"Identify the simple subject: \"The tall pine tree swayed in the storm.\"",
+    choices:["tall","tree","pine","storm"], correct:1, skill:"Subjects",
+    explanation:"The simple subject is the main noun: \"tree.\" \"Tall\" and \"pine\" describe the tree." },
+  { id:"g5l10", text:"Which sentence is a complete sentence?",
+    choices:["Running through the field.","After the long day.","The puppy barked loudly.","Because she was happy."],
+    correct:2, skill:"Sentence structure",
+    explanation:"A complete sentence needs a subject and a verb and expresses a complete thought. The others are fragments." },
+  { id:"g5l11", text:"Choose the correct contraction for \"they are.\"",
+    choices:["their","there","they're","theyre"], correct:2, skill:"Contractions",
+    explanation:"\"They're\" = they are. Apostrophe replaces the missing letter \"a.\"" },
+  { id:"g5l12", text:"Which sentence uses an apostrophe correctly?",
+    choices:["The dogs bone was buried.","The dog's bone was buried.","The dogs' bone was buried in the yard by one dog.","The do'gs bone was buried."],
+    correct:1, skill:"Apostrophes",
+    explanation:"Singular possessive: dog's (one dog). Plural possessive (dogs') would mean more than one dog owning it." },
+  { id:"g5l13", text:"Choose the word that best completes the sentence: \"She ran ___ than her sister.\"",
+    choices:["fast","faster","fastest","more fast"], correct:1, skill:"Comparatives",
+    explanation:"Comparing two things uses the comparative form: \"faster.\"" },
+  { id:"g5l14", text:"Which sentence uses \"its\" correctly?",
+    choices:["The cat licked it's paw.","Its raining outside.","The dog wagged its tail.","Its' a sunny day."],
+    correct:2, skill:"Its vs. it's",
+    explanation:"\"Its\" (no apostrophe) is the possessive form. \"It's\" with apostrophe means \"it is.\"" },
+  { id:"g5l15", text:"Which word in this sentence is an adverb? \"The runner quickly crossed the finish line.\"",
+    choices:["runner","quickly","crossed","line"], correct:1, skill:"Parts of speech",
+    explanation:"Adverbs describe verbs, often ending in -ly. \"Quickly\" describes how she crossed." },
+]);
+
+addSection(5, "math", "Math", 35*60, [
+  { id:"g5m1", text:"What is 487 + 256?",
+    choices:["643","733","743","753"], correct:2, skill:"Addition",
+    explanation:"487 + 256 = 743. (7+6=13 carry 1; 8+5+1=14 carry 1; 4+2+1=7.)" },
+  { id:"g5m2", text:"What is 1,205 − 738?",
+    choices:["467","477","567","577"], correct:0, skill:"Subtraction",
+    explanation:"1205 − 738 = 467." },
+  { id:"g5m3", text:"What is 36 × 24?",
+    choices:["744","824","864","964"], correct:2, skill:"Multiplication",
+    explanation:"36 × 24 = 36 × 20 + 36 × 4 = 720 + 144 = 864." },
+  { id:"g5m4", text:"What is 528 ÷ 8?",
+    choices:["56","66","76","86"], correct:1, skill:"Division",
+    explanation:"528 ÷ 8 = 66 (8 × 66 = 528)." },
+  { id:"g5m5", text:"Which fraction is equivalent to 3/4?",
+    choices:["6/12","9/12","8/16","12/20"], correct:1, skill:"Equivalent fractions",
+    explanation:"Multiply numerator and denominator by 3: 3/4 = 9/12." },
+  { id:"g5m6", text:"What is 1/2 + 1/3?",
+    choices:["2/5","5/6","2/3","1/5"], correct:1, skill:"Adding fractions",
+    explanation:"Common denominator is 6. 1/2 = 3/6, 1/3 = 2/6, sum = 5/6." },
+  { id:"g5m7", text:"Round 3.847 to the nearest tenth.",
+    choices:["3.7","3.8","3.9","4.0"], correct:1, skill:"Rounding decimals",
+    explanation:"The hundredths digit is 4 (less than 5), so round down: 3.8." },
+  { id:"g5m8", text:"What is 0.6 × 0.4?",
+    choices:["0.024","0.24","2.4","24"], correct:1, skill:"Multiplying decimals",
+    explanation:"6 × 4 = 24. There are two decimal places total in the factors, so the answer is 0.24." },
+  { id:"g5m9", text:"Find the value: 4 + 3 × (8 − 6)",
+    choices:["10","14","20","2"], correct:0, skill:"Order of operations",
+    explanation:"Parentheses first: 8 − 6 = 2. Then 3 × 2 = 6. Then 4 + 6 = 10." },
+  { id:"g5m10", text:"A rectangle has length 8 cm and width 5 cm. What is its area?",
+    choices:["13 cm²","26 cm²","40 cm²","45 cm²"], correct:2, skill:"Area",
+    explanation:"Area = length × width = 8 × 5 = 40 cm²." },
+  { id:"g5m11", text:"What is the volume of a box that is 4 cm long, 3 cm wide, and 2 cm tall?",
+    choices:["9 cm³","24 cm³","18 cm³","12 cm³"], correct:1, skill:"Volume",
+    explanation:"Volume = l × w × h = 4 × 3 × 2 = 24 cm³." },
+  { id:"g5m12", text:"On the coordinate plane, what point is at (3, 4)?",
+    choices:["3 units up, 4 units right","3 units right, 4 units up","4 units up, 3 units left","3 units left, 4 units down"],
+    correct:1, skill:"Coordinate plane",
+    explanation:"In (x, y), x = horizontal (right). The first number, 3, is right; the second, 4, is up." },
+  { id:"g5m13", text:"Sara bought 4 packs of stickers. Each pack has 12 stickers. She gave 9 stickers to her brother. How many stickers does Sara have left?",
+    choices:["39","40","48","57"], correct:0, skill:"Word problem",
+    explanation:"4 × 12 = 48 stickers, then 48 − 9 = 39." },
+  { id:"g5m14", text:"Which decimal is equal to 3/5?",
+    choices:["0.3","0.35","0.5","0.6"], correct:3, skill:"Fraction to decimal",
+    explanation:"3 ÷ 5 = 0.6." },
+  { id:"g5m15", text:"What is the perimeter of a square with side length 7 inches?",
+    choices:["14 in","21 in","28 in","49 in"], correct:2, skill:"Perimeter",
+    explanation:"A square has 4 equal sides: 4 × 7 = 28 inches." },
+]);
+
+addSection(5, "science", "Science", 20*60, [
+  { id:"g5s1", text:"Which of these is a renewable resource?",
+    choices:["Coal","Oil","Sunlight","Natural gas"], correct:2, skill:"Earth science",
+    explanation:"Sunlight is renewable — it is continually replenished. Coal, oil, and natural gas are fossil fuels (nonrenewable)." },
+  { id:"g5s2", text:"What is the main source of energy for Earth's water cycle?",
+    choices:["The Moon","The Sun","Volcanoes","Wind"], correct:1, skill:"Water cycle",
+    explanation:"The Sun's heat drives evaporation, which powers the water cycle." },
+  { id:"g5s3", text:"A scientist wants to test which liquid plants grow best in. The TYPE of liquid is the —",
+    choices:["independent variable","dependent variable","control","conclusion"], correct:0, skill:"Scientific method",
+    explanation:"The independent variable is the one the scientist changes on purpose — here, the type of liquid." },
+  { id:"g5s4", text:"Which planet is closest to the Sun?",
+    choices:["Venus","Earth","Mars","Mercury"], correct:3, skill:"Solar system",
+    explanation:"Mercury is the planet closest to the Sun." },
+  { id:"g5s5", text:"What is the change called when a liquid turns into a gas?",
+    choices:["Melting","Freezing","Evaporation","Condensation"], correct:2, skill:"States of matter",
+    explanation:"Liquid → gas is evaporation (or boiling). Gas → liquid is condensation." },
+  { id:"g5s6", text:"Which of these is an example of a physical change?",
+    choices:["Burning wood","Rusting iron","Melting ice","Baking a cake"], correct:2, skill:"Physical vs chemical",
+    explanation:"Melting ice changes its form but not what it's made of. The others involve chemical changes." },
+  { id:"g5s7", text:"In a food chain, animals that eat only plants are called —",
+    choices:["carnivores","herbivores","omnivores","decomposers"], correct:1, skill:"Ecosystems",
+    explanation:"Herbivores eat plants. Carnivores eat meat; omnivores eat both." },
+  { id:"g5s8", text:"What is the force that pulls objects toward the center of the Earth?",
+    choices:["Magnetism","Friction","Gravity","Electricity"], correct:2, skill:"Forces",
+    explanation:"Gravity pulls objects toward Earth's center, giving them weight." },
+  { id:"g5s9", text:"Which part of a plant makes food using sunlight?",
+    choices:["Roots","Stem","Leaves","Flowers"], correct:2, skill:"Plant biology",
+    explanation:"Leaves contain chlorophyll and perform photosynthesis using sunlight." },
+  { id:"g5s10", text:"What causes day and night on Earth?",
+    choices:["Earth's revolution around the Sun","Earth's rotation on its axis","The Moon's orbit","The tilt of Earth's axis"], correct:1, skill:"Earth-Sun-Moon",
+    explanation:"Earth rotates on its axis once every 24 hours, creating day and night." },
+  { id:"g5s11", text:"Which of these animals is a mammal?",
+    choices:["Frog","Snake","Bat","Eagle"], correct:2, skill:"Animal classification",
+    explanation:"Bats are mammals — they have fur, give birth to live young, and produce milk. (Frogs are amphibians, snakes reptiles, eagles birds.)" },
+  { id:"g5s12", text:"Sound travels by —",
+    choices:["light waves","heat","vibrations","gravity"], correct:2, skill:"Sound",
+    explanation:"Sound is produced by vibrations that travel through matter (air, water, solids)." },
+  { id:"g5s13", text:"Which is the BEST tool for measuring temperature?",
+    choices:["Ruler","Scale","Thermometer","Stopwatch"], correct:2, skill:"Measurement tools",
+    explanation:"A thermometer measures temperature." },
+  { id:"g5s14", text:"What gas do humans breathe in to stay alive?",
+    choices:["Carbon dioxide","Oxygen","Nitrogen","Helium"], correct:1, skill:"Human body",
+    explanation:"Humans inhale oxygen and exhale carbon dioxide." },
+  { id:"g5s15", text:"What is the BEST description of a fossil?",
+    choices:["A type of mineral","Preserved remains or traces of an ancient organism","A rock formed from lava","A living plant or animal"], correct:1, skill:"Earth history",
+    explanation:"Fossils are preserved remains or traces (bones, footprints, imprints) of organisms from long ago." },
+]);
+
+addSection(5, "social", "Social Studies", 20*60, [
+  { id:"g5ss1", text:"Which document begins with the words \"We the People\"?",
+    choices:["Declaration of Independence","U.S. Constitution","Bill of Rights","Emancipation Proclamation"],
+    correct:1, skill:"Founding documents",
+    explanation:"The Preamble of the U.S. Constitution starts with \"We the People of the United States...\"" },
+  { id:"g5ss2", text:"Who was the first President of the United States?",
+    choices:["Thomas Jefferson","John Adams","George Washington","Benjamin Franklin"], correct:2, skill:"U.S. history",
+    explanation:"George Washington served as the first president from 1789 to 1797." },
+  { id:"g5ss3", text:"What is the capital of Louisiana?",
+    choices:["New Orleans","Shreveport","Baton Rouge","Lafayette"], correct:2, skill:"State geography",
+    explanation:"Baton Rouge is the capital of Louisiana." },
+  { id:"g5ss4", text:"Which of these is a RIGHT protected by the First Amendment?",
+    choices:["The right to drive","Freedom of speech","Free public education","The right to vote at any age"],
+    correct:1, skill:"Bill of Rights",
+    explanation:"The First Amendment protects freedom of speech, religion, press, assembly, and petition." },
+  { id:"g5ss5", text:"Which body of water borders Louisiana to the south?",
+    choices:["Atlantic Ocean","Pacific Ocean","Gulf of Mexico","Great Lakes"], correct:2, skill:"Geography",
+    explanation:"Louisiana's southern border is the Gulf of Mexico." },
+  { id:"g5ss6", text:"What is the main purpose of taxes?",
+    choices:["To make people rich","To pay for public services like roads and schools","To buy private homes","To punish citizens"], correct:1, skill:"Economics/civics",
+    explanation:"Taxes fund services the government provides for everyone: roads, schools, military, fire and police, etc." },
+  { id:"g5ss7", text:"Which group of people lived in North America BEFORE European explorers arrived?",
+    choices:["Pilgrims","Native Americans","Spanish settlers","French traders"], correct:1, skill:"U.S. history",
+    explanation:"Native Americans inhabited North America for thousands of years before Europeans arrived." },
+  { id:"g5ss8", text:"The Mississippi River flows mostly in which direction?",
+    choices:["North","South","East","West"], correct:1, skill:"Geography",
+    explanation:"The Mississippi River flows south, emptying into the Gulf of Mexico in Louisiana." },
+  { id:"g5ss9", text:"Which branch of the federal government makes laws?",
+    choices:["Executive","Legislative","Judicial","Military"], correct:1, skill:"Three branches",
+    explanation:"The legislative branch (Congress: Senate and House of Representatives) writes and passes laws." },
+  { id:"g5ss10", text:"Which event marked the start of the American Revolution?",
+    choices:["The Civil War","The Battles of Lexington and Concord","The Louisiana Purchase","The signing of the Constitution"], correct:1, skill:"U.S. history",
+    explanation:"The American Revolution began with the Battles of Lexington and Concord in 1775." },
+  { id:"g5ss11", text:"The Louisiana Purchase in 1803 was bought by the United States from —",
+    choices:["Spain","France","Britain","Mexico"], correct:1, skill:"U.S. history",
+    explanation:"The U.S. purchased the Louisiana Territory from France under Napoleon for about $15 million." },
+  { id:"g5ss12", text:"A map's KEY (legend) shows —",
+    choices:["the distance between cities","what the symbols on the map mean","the date the map was made","north on the map"], correct:1, skill:"Map skills",
+    explanation:"A map key (legend) explains what each symbol on the map represents." },
+  { id:"g5ss13", text:"What is the difference between a NEED and a WANT?",
+    choices:["Needs are required to live; wants are extras","Needs cost more than wants","Wants are for adults; needs are for kids","There is no difference"], correct:0, skill:"Economics",
+    explanation:"Needs (food, water, shelter) are required for survival. Wants are things we'd like to have but can live without." },
+  { id:"g5ss14", text:"Who has the power to veto a bill passed by Congress?",
+    choices:["The Vice President","The Supreme Court","The President","A state governor"], correct:2, skill:"Government",
+    explanation:"The President can veto (reject) a bill passed by Congress. Congress can override a veto with a 2/3 vote." },
+  { id:"g5ss15", text:"What does the term \"democracy\" mean?",
+    choices:["Rule by one king","Rule by the people","Rule by the military","Rule by religious leaders"], correct:1, skill:"Civics",
+    explanation:"Democracy comes from Greek roots meaning \"rule by the people\" — citizens vote on leaders and laws." },
+]);
+
+addSection(5, "spelling", "Spelling", 12*60, [
+  { id:"g5sp1", text:"Which word is spelled correctly?",
+    choices:["necesary","neccessary","necessary","necesarry"], correct:2, skill:"Common spelling",
+    explanation:"Necessary: one c, two s's." },
+  { id:"g5sp2", text:"Which word is spelled correctly?",
+    choices:["seperate","separate","separete","seperete"], correct:1, skill:"Common spelling",
+    explanation:"Separate has an 'a' in the middle, not an 'e' — \"sep-A-rate.\"" },
+  { id:"g5sp3", text:"Which word is spelled INCORRECTLY?",
+    choices:["friend","wierd","piece","receive"], correct:1, skill:"Misspelled",
+    explanation:"\"Wierd\" should be spelled WEIRD — one of the few exceptions to \"i before e.\"" },
+  { id:"g5sp4", text:"Which word is spelled correctly?",
+    choices:["beleive","believe","beleeve","belive"], correct:1, skill:"i before e",
+    explanation:"Believe — \"i before e except after c.\"" },
+  { id:"g5sp5", text:"Which word is spelled correctly?",
+    choices:["definately","definitely","definatly","definitley"], correct:1, skill:"Common spelling",
+    explanation:"Definitely — \"de-fi-NITE-ly\" (contains the word \"finite\")." },
+  { id:"g5sp6", text:"Which word is spelled INCORRECTLY?",
+    choices:["library","goverment","tomorrow","beautiful"], correct:1, skill:"Misspelled",
+    explanation:"Government — don't forget the n: \"gov-ERN-ment.\"" },
+  { id:"g5sp7", text:"Which is the correct spelling?",
+    choices:["wensday","wednsday","wednesday","wednesdey"], correct:2, skill:"Days/months",
+    explanation:"Wednesday — has a silent 'd': \"WED-nes-day.\"" },
+  { id:"g5sp8", text:"Choose the correctly spelled word: \"He gave a ___ speech.\"",
+    choices:["brillant","brilliant","briliant","brillent"], correct:1, skill:"Double letters",
+    explanation:"Brilliant — double l, double i." },
+  { id:"g5sp9", text:"Which word is spelled correctly?",
+    choices:["recieve","receive","receeve","receve"], correct:1, skill:"i before e",
+    explanation:"Receive — \"i before e EXCEPT after c.\"" },
+  { id:"g5sp10", text:"Which word is spelled INCORRECTLY?",
+    choices:["happened","occured","traveled","listened"], correct:1, skill:"Misspelled",
+    explanation:"Occurred has double c and double r: \"oc-CURRED.\"" },
+  { id:"g5sp11", text:"Which is the correct spelling?",
+    choices:["restaraunt","restaurant","resturaunt","restaurent"], correct:1, skill:"Common spelling",
+    explanation:"Restaurant — \"res-tau-rant.\"" },
+  { id:"g5sp12", text:"Which is the correct spelling?",
+    choices:["beggining","begining","beginning","beginnning"], correct:2, skill:"Doubling rules",
+    explanation:"Beginning — one g, double n: \"be-GIN-ning.\"" },
+  { id:"g5sp13", text:"Which word is spelled correctly?",
+    choices:["happend","happaned","happened","hapened"], correct:2, skill:"Past tense",
+    explanation:"Happened — \"hap-PENED,\" two p's only." },
+  { id:"g5sp14", text:"Which word is spelled INCORRECTLY?",
+    choices:["calendar","calender","mirror","scissors"], correct:1, skill:"Common spelling",
+    explanation:"Calendar ends with -ar, not -er." },
+  { id:"g5sp15", text:"Choose the correctly spelled word: \"My ___ is on Saturday.\"",
+    choices:["birthday","birthdey","brithday","birthdy"], correct:0, skill:"Compound words",
+    explanation:"Birthday — \"birth\" + \"day.\"" },
+]);
+
+/* --- GRADE 6 --- */
+addSection(6, "reading", "Reading Comprehension", 30*60, [
+  // Passage 1 — informational, history of science
+  { id:"g6r1", passageId:"g6p1", passageTitle:"The Stubborn Scientist",
+    passage:"In the 1840s, a Hungarian doctor named Ignaz Semmelweis noticed something strange. In the hospital where he worked, women who gave birth in one ward were dying of a fever at a much higher rate than women in another ward. The two wards had similar patients and similar rooms. The only obvious difference was the staff: one ward was run by medical students and doctors who often moved directly from the autopsy room to the delivery room. The other was staffed by midwives, who did not perform autopsies.\n\nSemmelweis suspected that something invisible was being carried on the doctors' hands. He insisted that staff scrub their hands with a chlorine solution before treating patients. Almost immediately, the death rate in the first ward dropped sharply. But Semmelweis's colleagues were offended at the suggestion that they had been spreading disease. Many refused to wash their hands. It would be years — long after Semmelweis's death — before scientists discovered germs and proved he had been right all along.",
+    text:"What is the central idea of this passage?",
+    choices:["Hospitals in the 1840s were dirty places.","A doctor's correct idea was rejected by others until much later.","Midwives were better than doctors at delivering babies.","Chlorine is the most important cleaner ever invented."],
+    correct:1, skill:"Central idea",
+    explanation:"The passage traces Semmelweis's correct hypothesis, its rejection, and eventual confirmation — that's the central idea." },
+  { id:"g6r2", passageId:"g6p1", passageTitle:"The Stubborn Scientist",
+    passage:"In the 1840s, a Hungarian doctor named Ignaz Semmelweis noticed something strange. In the hospital where he worked, women who gave birth in one ward were dying of a fever at a much higher rate than women in another ward. The two wards had similar patients and similar rooms. The only obvious difference was the staff: one ward was run by medical students and doctors who often moved directly from the autopsy room to the delivery room. The other was staffed by midwives, who did not perform autopsies.\n\nSemmelweis suspected that something invisible was being carried on the doctors' hands. He insisted that staff scrub their hands with a chlorine solution before treating patients. Almost immediately, the death rate in the first ward dropped sharply. But Semmelweis's colleagues were offended at the suggestion that they had been spreading disease. Many refused to wash their hands. It would be years — long after Semmelweis's death — before scientists discovered germs and proved he had been right all along.",
+    text:"Based on the passage, what most likely caused the higher death rate in one ward?",
+    choices:["The rooms were colder.","Doctors carried something harmful from the autopsy room to patients.","The midwives did not know enough medicine.","Women in that ward were already sicker before delivery."],
+    correct:1, skill:"Inference",
+    explanation:"The passage points to doctors moving from autopsies straight to deliveries and to something invisible on their hands — germs we now know cause infection." },
+  { id:"g6r3", passageId:"g6p1", passageTitle:"The Stubborn Scientist",
+    passage:"In the 1840s, a Hungarian doctor named Ignaz Semmelweis noticed something strange. In the hospital where he worked, women who gave birth in one ward were dying of a fever at a much higher rate than women in another ward. The two wards had similar patients and similar rooms. The only obvious difference was the staff: one ward was run by medical students and doctors who often moved directly from the autopsy room to the delivery room. The other was staffed by midwives, who did not perform autopsies.\n\nSemmelweis suspected that something invisible was being carried on the doctors' hands. He insisted that staff scrub their hands with a chlorine solution before treating patients. Almost immediately, the death rate in the first ward dropped sharply. But Semmelweis's colleagues were offended at the suggestion that they had been spreading disease. Many refused to wash their hands. It would be years — long after Semmelweis's death — before scientists discovered germs and proved he had been right all along.",
+    text:"Why did many of Semmelweis's colleagues refuse to wash their hands?",
+    choices:["They were too busy.","They did not believe his idea and were insulted by it.","The chlorine was too expensive.","They thought handwashing wasted water."],
+    correct:1, skill:"Cause and effect",
+    explanation:"The passage states they \"were offended at the suggestion that they had been spreading disease.\"" },
+  { id:"g6r4", passageId:"g6p1", passageTitle:"The Stubborn Scientist",
+    passage:"In the 1840s, a Hungarian doctor named Ignaz Semmelweis noticed something strange. In the hospital where he worked, women who gave birth in one ward were dying of a fever at a much higher rate than women in another ward. The two wards had similar patients and similar rooms. The only obvious difference was the staff: one ward was run by medical students and doctors who often moved directly from the autopsy room to the delivery room. The other was staffed by midwives, who did not perform autopsies.\n\nSemmelweis suspected that something invisible was being carried on the doctors' hands. He insisted that staff scrub their hands with a chlorine solution before treating patients. Almost immediately, the death rate in the first ward dropped sharply. But Semmelweis's colleagues were offended at the suggestion that they had been spreading disease. Many refused to wash their hands. It would be years — long after Semmelweis's death — before scientists discovered germs and proved he had been right all along.",
+    text:"The word \"insisted\" in paragraph 2 suggests that Semmelweis was —",
+    choices:["unsure of himself","firm and determined","easily distracted","afraid of his colleagues"],
+    correct:1, skill:"Word choice",
+    explanation:"To \"insist\" means to demand firmly — it shows determination." },
+  { id:"g6r5", passageId:"g6p1", passageTitle:"The Stubborn Scientist",
+    passage:"In the 1840s, a Hungarian doctor named Ignaz Semmelweis noticed something strange. In the hospital where he worked, women who gave birth in one ward were dying of a fever at a much higher rate than women in another ward. The two wards had similar patients and similar rooms. The only obvious difference was the staff: one ward was run by medical students and doctors who often moved directly from the autopsy room to the delivery room. The other was staffed by midwives, who did not perform autopsies.\n\nSemmelweis suspected that something invisible was being carried on the doctors' hands. He insisted that staff scrub their hands with a chlorine solution before treating patients. Almost immediately, the death rate in the first ward dropped sharply. But Semmelweis's colleagues were offended at the suggestion that they had been spreading disease. Many refused to wash their hands. It would be years — long after Semmelweis's death — before scientists discovered germs and proved he had been right all along.",
+    text:"Which lesson is best supported by this passage?",
+    choices:["New ideas are sometimes resisted, even when they are correct.","Hospitals should not allow doctors to work in more than one ward.","Midwives should always replace doctors.","Soap is better than chlorine."],
+    correct:0, skill:"Theme",
+    explanation:"The passage shows that Semmelweis was right but rejected — the broader lesson is about resistance to correct new ideas." },
+
+  // Passage 2 — fiction
+  { id:"g6r6", passageId:"g6p2", passageTitle:"The Tournament",
+    passage:"Devon had spent two months preparing for the chess tournament. He had memorized openings, studied endgames, even watched videos of grandmasters until his eyes ached. On the morning of the tournament, his hands felt cold and clammy, and the cereal in his bowl looked like wet cardboard.\n\nHis first opponent was a girl named Tara, no older than nine. Devon was eleven. He tried to be polite, but inside he was already imagining the trophy on his shelf.\n\nTwelve moves later, Devon stared at the board in disbelief. His queen was trapped. Tara folded her hands in her lap, perfectly calm. \"Check,\" she said softly.\n\nDevon swallowed. He could resign — many players did when their position was hopeless. Or he could keep playing, learn whatever he could, and lose with grace. He took a long breath, moved his king out of check, and decided that today's lesson was not going to be about winning.",
+    text:"Which word BEST describes how Devon feels at the start of the tournament?",
+    choices:["confident","nervous","bored","angry"],
+    correct:1, skill:"Character feelings",
+    explanation:"Cold, clammy hands and cereal looking like \"wet cardboard\" show nervousness." },
+  { id:"g6r7", passageId:"g6p2", passageTitle:"The Tournament",
+    passage:"Devon had spent two months preparing for the chess tournament. He had memorized openings, studied endgames, even watched videos of grandmasters until his eyes ached. On the morning of the tournament, his hands felt cold and clammy, and the cereal in his bowl looked like wet cardboard.\n\nHis first opponent was a girl named Tara, no older than nine. Devon was eleven. He tried to be polite, but inside he was already imagining the trophy on his shelf.\n\nTwelve moves later, Devon stared at the board in disbelief. His queen was trapped. Tara folded her hands in her lap, perfectly calm. \"Check,\" she said softly.\n\nDevon swallowed. He could resign — many players did when their position was hopeless. Or he could keep playing, learn whatever he could, and lose with grace. He took a long breath, moved his king out of check, and decided that today's lesson was not going to be about winning.",
+    text:"What mistake does Devon make when he meets Tara?",
+    choices:["He is rude to her.","He underestimates her because she is younger.","He forgets the rules.","He plays too slowly."],
+    correct:1, skill:"Inference",
+    explanation:"He notes she is \"no older than nine\" while he imagines winning the trophy — he assumes the game will be easy." },
+  { id:"g6r8", passageId:"g6p2", passageTitle:"The Tournament",
+    passage:"Devon had spent two months preparing for the chess tournament. He had memorized openings, studied endgames, even watched videos of grandmasters until his eyes ached. On the morning of the tournament, his hands felt cold and clammy, and the cereal in his bowl looked like wet cardboard.\n\nHis first opponent was a girl named Tara, no older than nine. Devon was eleven. He tried to be polite, but inside he was already imagining the trophy on his shelf.\n\nTwelve moves later, Devon stared at the board in disbelief. His queen was trapped. Tara folded her hands in her lap, perfectly calm. \"Check,\" she said softly.\n\nDevon swallowed. He could resign — many players did when their position was hopeless. Or he could keep playing, learn whatever he could, and lose with grace. He took a long breath, moved his king out of check, and decided that today's lesson was not going to be about winning.",
+    text:"In the story, the cereal looking like \"wet cardboard\" is an example of —",
+    choices:["a hyperbole","an idiom","a simile","personification"],
+    correct:2, skill:"Figurative language",
+    explanation:"Comparing one thing to another using \"like\" or \"as\" is a simile." },
+  { id:"g6r9", passageId:"g6p2", passageTitle:"The Tournament",
+    passage:"Devon had spent two months preparing for the chess tournament. He had memorized openings, studied endgames, even watched videos of grandmasters until his eyes ached. On the morning of the tournament, his hands felt cold and clammy, and the cereal in his bowl looked like wet cardboard.\n\nHis first opponent was a girl named Tara, no older than nine. Devon was eleven. He tried to be polite, but inside he was already imagining the trophy on his shelf.\n\nTwelve moves later, Devon stared at the board in disbelief. His queen was trapped. Tara folded her hands in her lap, perfectly calm. \"Check,\" she said softly.\n\nDevon swallowed. He could resign — many players did when their position was hopeless. Or he could keep playing, learn whatever he could, and lose with grace. He took a long breath, moved his king out of check, and decided that today's lesson was not going to be about winning.",
+    text:"What is the most likely theme of the story?",
+    choices:["Older players always beat younger ones.","Practicing for two months guarantees victory.","Growth can come from losing as well as winning.","Chess is more about luck than skill."],
+    correct:2, skill:"Theme",
+    explanation:"Devon chooses to keep playing to learn, deciding \"today's lesson was not going to be about winning\" — the theme is growth through losing." },
+  { id:"g6r10", passageId:"g6p2", passageTitle:"The Tournament",
+    passage:"Devon had spent two months preparing for the chess tournament. He had memorized openings, studied endgames, even watched videos of grandmasters until his eyes ached. On the morning of the tournament, his hands felt cold and clammy, and the cereal in his bowl looked like wet cardboard.\n\nHis first opponent was a girl named Tara, no older than nine. Devon was eleven. He tried to be polite, but inside he was already imagining the trophy on his shelf.\n\nTwelve moves later, Devon stared at the board in disbelief. His queen was trapped. Tara folded her hands in her lap, perfectly calm. \"Check,\" she said softly.\n\nDevon swallowed. He could resign — many players did when their position was hopeless. Or he could keep playing, learn whatever he could, and lose with grace. He took a long breath, moved his king out of check, and decided that today's lesson was not going to be about winning.",
+    text:"What does the phrase \"lose with grace\" mean as it is used in the passage?",
+    choices:["Lose while being kind and dignified","Lose without paying attention","Lose because of bad luck","Lose without finishing the game"],
+    correct:0, skill:"Vocabulary in context",
+    explanation:"Losing with grace means accepting defeat with good behavior and respect — being a good sport." },
+
+  // Passage 3 — informational
+  { id:"g6r11", passageId:"g6p3", passageTitle:"Why the Sky Is Blue",
+    passage:"Sunlight looks white, but it is actually a mixture of every color you can see — and a few you can't. When sunlight enters Earth's atmosphere, it bumps into gas molecules. The shorter, bluer wavelengths of light scatter, or bounce, off these molecules much more than the longer red and yellow wavelengths. The blue light scatters in every direction, which is why almost any patch of clear daytime sky looks blue to us.\n\nAt sunset, you may notice the sky turn orange or red. That's because the sun is now low on the horizon, and its light must pass through much more atmosphere. By the time the light reaches your eyes, most of the blue has already scattered away. What remains are the longer wavelengths — the warm oranges and reds.",
+    text:"What is the BEST description of how this passage is organized?",
+    choices:["Compare and contrast","Cause and effect","Chronological order","Problem and solution"],
+    correct:1, skill:"Text structure",
+    explanation:"The passage explains a cause (light scattering through atmosphere) and its effect (the colors we see in the sky)." },
+  { id:"g6r12", passageId:"g6p3", passageTitle:"Why the Sky Is Blue",
+    passage:"Sunlight looks white, but it is actually a mixture of every color you can see — and a few you can't. When sunlight enters Earth's atmosphere, it bumps into gas molecules. The shorter, bluer wavelengths of light scatter, or bounce, off these molecules much more than the longer red and yellow wavelengths. The blue light scatters in every direction, which is why almost any patch of clear daytime sky looks blue to us.\n\nAt sunset, you may notice the sky turn orange or red. That's because the sun is now low on the horizon, and its light must pass through much more atmosphere. By the time the light reaches your eyes, most of the blue has already scattered away. What remains are the longer wavelengths — the warm oranges and reds.",
+    text:"According to the passage, why does the sky look blue?",
+    choices:["The atmosphere is colored blue.","Blue wavelengths of sunlight scatter the most.","Water vapor reflects blue.","The Sun emits only blue light."],
+    correct:1, skill:"Key details",
+    explanation:"The passage explains shorter blue wavelengths scatter more than other colors." },
+  { id:"g6r13", passageId:"g6p3", passageTitle:"Why the Sky Is Blue",
+    passage:"Sunlight looks white, but it is actually a mixture of every color you can see — and a few you can't. When sunlight enters Earth's atmosphere, it bumps into gas molecules. The shorter, bluer wavelengths of light scatter, or bounce, off these molecules much more than the longer red and yellow wavelengths. The blue light scatters in every direction, which is why almost any patch of clear daytime sky looks blue to us.\n\nAt sunset, you may notice the sky turn orange or red. That's because the sun is now low on the horizon, and its light must pass through much more atmosphere. By the time the light reaches your eyes, most of the blue has already scattered away. What remains are the longer wavelengths — the warm oranges and reds.",
+    text:"Why does the passage mention sunsets?",
+    choices:["To prove that the sky changes color","To show a related effect of light scattering","To compare sunsets to sunrises","To explain how the Sun moves"],
+    correct:1, skill:"Author's purpose",
+    explanation:"Sunsets are given as a second example of the same scattering principle, applied differently." },
+  { id:"g6r14", passageId:"g6p3", passageTitle:"Why the Sky Is Blue",
+    passage:"Sunlight looks white, but it is actually a mixture of every color you can see — and a few you can't. When sunlight enters Earth's atmosphere, it bumps into gas molecules. The shorter, bluer wavelengths of light scatter, or bounce, off these molecules much more than the longer red and yellow wavelengths. The blue light scatters in every direction, which is why almost any patch of clear daytime sky looks blue to us.\n\nAt sunset, you may notice the sky turn orange or red. That's because the sun is now low on the horizon, and its light must pass through much more atmosphere. By the time the light reaches your eyes, most of the blue has already scattered away. What remains are the longer wavelengths — the warm oranges and reds.",
+    text:"In the passage, the word \"scatter\" most nearly means —",
+    choices:["disappear","bounce in many directions","heat up","turn dark"],
+    correct:1, skill:"Vocabulary in context",
+    explanation:"The passage defines scatter by adding \"or bounce, off these molecules\" and noting it goes \"in every direction.\"" },
+  { id:"g6r15", passageId:"g6p3", passageTitle:"Why the Sky Is Blue",
+    passage:"Sunlight looks white, but it is actually a mixture of every color you can see — and a few you can't. When sunlight enters Earth's atmosphere, it bumps into gas molecules. The shorter, bluer wavelengths of light scatter, or bounce, off these molecules much more than the longer red and yellow wavelengths. The blue light scatters in every direction, which is why almost any patch of clear daytime sky looks blue to us.\n\nAt sunset, you may notice the sky turn orange or red. That's because the sun is now low on the horizon, and its light must pass through much more atmosphere. By the time the light reaches your eyes, most of the blue has already scattered away. What remains are the longer wavelengths — the warm oranges and reds.",
+    text:"You could BEST use this passage to answer which question?",
+    choices:["How fast does the Earth rotate?","Why does the color of the sky change throughout the day?","How do clouds form?","What is the difference between a star and a planet?"],
+    correct:1, skill:"Conclusions",
+    explanation:"The passage explains why the sky's color changes — from blue daytime to orange/red sunset." },
+]);
+
+addSection(6, "vocabulary", "Vocabulary", 15*60, [
+  { id:"g6v1", text:"Choose the word that means most nearly the same as \"persuade.\"",
+    choices:["argue","convince","ignore","force"], correct:1, skill:"Synonyms",
+    explanation:"To persuade is to convince someone through reasoning or appeal." },
+  { id:"g6v2", text:"Choose the word that means most nearly the same as \"diligent.\"",
+    choices:["lazy","hardworking","funny","clumsy"], correct:1, skill:"Synonyms",
+    explanation:"Diligent means careful and hardworking." },
+  { id:"g6v3", text:"Choose the word that means most nearly the same as \"vital.\"",
+    choices:["unimportant","necessary","expensive","heavy"], correct:1, skill:"Synonyms",
+    explanation:"Vital means essential or necessary for life or success." },
+  { id:"g6v4", text:"Choose the word that means most nearly the same as \"hostile.\"",
+    choices:["friendly","unfriendly","silent","cold"], correct:1, skill:"Synonyms",
+    explanation:"Hostile means unfriendly or aggressive." },
+  { id:"g6v5", text:"Choose the word that means most nearly the same as \"isolate.\"",
+    choices:["join","separate","watch","hide"], correct:1, skill:"Synonyms",
+    explanation:"To isolate is to set apart or separate from others." },
+  { id:"g6v6", text:"Choose the word that means the OPPOSITE of \"humble.\"",
+    choices:["modest","kind","arrogant","quiet"], correct:2, skill:"Antonyms",
+    explanation:"Humble = modest. Arrogant = full of self-importance." },
+  { id:"g6v7", text:"Choose the word that means the OPPOSITE of \"genuine.\"",
+    choices:["real","fake","gold","fragile"], correct:1, skill:"Antonyms",
+    explanation:"Genuine means real/true; fake means not real." },
+  { id:"g6v8", text:"Choose the word that means the OPPOSITE of \"optimistic.\"",
+    choices:["hopeful","cheerful","pessimistic","helpful"], correct:2, skill:"Antonyms",
+    explanation:"Optimistic = expecting good. Pessimistic = expecting bad." },
+  { id:"g6v9", text:"Choose the word that means the OPPOSITE of \"conceal.\"",
+    choices:["reveal","hide","mention","forget"], correct:0, skill:"Antonyms",
+    explanation:"Conceal = hide. Reveal = make known/show." },
+  { id:"g6v10", text:"Choose the word that means the OPPOSITE of \"diminish.\"",
+    choices:["reduce","increase","stop","change"], correct:1, skill:"Antonyms",
+    explanation:"Diminish = decrease. Increase is the opposite." },
+  { id:"g6v11", text:"The judge gave an IMPARTIAL ruling. \"Impartial\" most nearly means —",
+    choices:["unfair","fair to all sides","strict","quick"], correct:1, skill:"Context",
+    explanation:"A judge should be impartial — not favoring any side; fair." },
+  { id:"g6v12", text:"The book gave a VIVID description of the desert. \"Vivid\" most nearly means —",
+    choices:["short","dull","bright and clear","secret"], correct:2, skill:"Context",
+    explanation:"Vivid means lifelike, bright, and clear — easy to picture." },
+  { id:"g6v13", text:"Her remark was so SUBTLE that no one noticed. \"Subtle\" most nearly means —",
+    choices:["loud","slight","cruel","helpful"], correct:1, skill:"Context",
+    explanation:"\"Nobody noticed\" tells you the remark was barely noticeable — slight or delicate." },
+  { id:"g6v14", text:"The lake was so SERENE we forgot the city existed. \"Serene\" most nearly means —",
+    choices:["dangerous","peaceful","crowded","muddy"], correct:1, skill:"Context",
+    explanation:"\"Forgot the city\" suggests calm and quiet — peaceful, serene." },
+  { id:"g6v15", text:"The team's victory was INEVITABLE after the third quarter. \"Inevitable\" most nearly means —",
+    choices:["unlikely","unavoidable","surprising","disappointing"], correct:1, skill:"Context",
+    explanation:"Inevitable means certain to happen — unavoidable." },
+]);
+
+addSection(6, "language", "Language / Grammar", 20*60, [
+  { id:"g6l1", text:"Which sentence is written correctly?",
+    choices:["Each of the players are warming up.","Each of the players is warming up.","Each of the players were warming up.","Each of the player are warming up."],
+    correct:1, skill:"Subject-verb agreement",
+    explanation:"\"Each\" is singular, so it takes the singular verb \"is.\"" },
+  { id:"g6l2", text:"Choose the correctly punctuated sentence.",
+    choices:["Although it was raining, we went on a walk.","Although it was raining we went on a walk.","Although, it was raining we went on a walk.","Although it was raining we, went on a walk."],
+    correct:0, skill:"Commas with clauses",
+    explanation:"When a dependent clause comes first, use a comma after it before the main clause." },
+  { id:"g6l3", text:"Identify the type of sentence: \"Wow, that was an incredible play!\"",
+    choices:["Declarative","Interrogative","Imperative","Exclamatory"],
+    correct:3, skill:"Sentence types",
+    explanation:"An exclamatory sentence expresses strong feeling and ends in an exclamation mark." },
+  { id:"g6l4", text:"Choose the sentence with no errors.",
+    choices:["The teacher gave Sam and I a new project.","The teacher gave Sam and me a new project.","The teacher gave I and Sam a new project.","Me and Sam was given a new project."],
+    correct:1, skill:"Pronoun case",
+    explanation:"After the verb \"gave,\" use the object pronoun \"me.\" Test it by removing \"Sam and\" — \"gave me a project\" sounds right." },
+  { id:"g6l5", text:"Which word in this sentence is a preposition? \"The cat hid under the porch.\"",
+    choices:["cat","hid","under","porch"], correct:2, skill:"Parts of speech",
+    explanation:"\"Under\" shows the relationship between \"hid\" and \"porch\" — that's a preposition." },
+  { id:"g6l6", text:"Which sentence uses a semicolon correctly?",
+    choices:["I'm tired; because I stayed up late.","I'm tired; I stayed up late.","I'm tired; and so I went to bed.","I'm; tired I went to bed."],
+    correct:1, skill:"Semicolons",
+    explanation:"A semicolon joins two related independent clauses without a conjunction." },
+  { id:"g6l7", text:"Identify the verb tense: \"By next Friday, she will have finished her project.\"",
+    choices:["Simple future","Future perfect","Present perfect","Past perfect"],
+    correct:1, skill:"Verb tenses",
+    explanation:"\"Will have finished\" by a future time = future perfect tense." },
+  { id:"g6l8", text:"Which sentence uses an adverb to describe an adjective?",
+    choices:["She ran quickly.","The very tall man waved.","He smiled at me.","They played outside."],
+    correct:1, skill:"Adverbs",
+    explanation:"\"Very\" is an adverb modifying the adjective \"tall.\"" },
+  { id:"g6l9", text:"Choose the correct word: \"Neither Sam ___ Liam was on the bus.\"",
+    choices:["or","nor","and","but"], correct:1, skill:"Correlative conjunctions",
+    explanation:"\"Neither\" pairs with \"nor.\" (\"Either\" pairs with \"or.\")" },
+  { id:"g6l10", text:"Identify the dependent clause in this sentence: \"When the rain stopped, we went outside.\"",
+    choices:["When the rain stopped","we went outside","the rain stopped, we","went outside"], correct:0, skill:"Clauses",
+    explanation:"A dependent clause cannot stand alone as a sentence. \"When the rain stopped\" needs more to complete the thought." },
+  { id:"g6l11", text:"Which is the BEST revision? \"The teacher said the students could leave early because they had been working really really hard.\"",
+    choices:["No change needed","The teacher said the students could leave early because they had worked extremely hard.","The teacher said the students could leave early because they were really really really hard working.","Because they had been working really really hard, the teacher said students could leave."],
+    correct:1, skill:"Revising for word choice",
+    explanation:"Replacing \"really really\" with a single stronger adverb (\"extremely\") tightens the sentence." },
+  { id:"g6l12", text:"Which is the correct plural of \"child\"?",
+    choices:["childs","children","childes","childrens"], correct:1, skill:"Irregular plurals",
+    explanation:"Child → children (irregular plural)." },
+  { id:"g6l13", text:"In \"The trophy, which Maria had won three times, sat on the shelf,\" the underlined phrase is a —",
+    choices:["main clause","fragment","nonrestrictive clause","prepositional phrase"], correct:2, skill:"Clauses",
+    explanation:"A nonrestrictive clause adds extra information set off by commas; the sentence makes sense without it." },
+  { id:"g6l14", text:"Which sentence has a pronoun-antecedent agreement error?",
+    choices:["The boy lost his backpack.","Each student should bring their own pencil.","The team won its game.","She and her sister rode their bikes."],
+    correct:1, skill:"Pronoun agreement",
+    explanation:"In formal usage, \"each student\" is singular, so the pronoun should be \"his or her own pencil\" rather than \"their.\" (Note: some style guides now accept singular \"they.\")" },
+  { id:"g6l15", text:"Which sentence uses a colon correctly?",
+    choices:["I need three things: bread, milk, and eggs.","I need: three things bread milk and eggs.","I need: three things, bread, milk, eggs.","I need three: things bread milk and eggs."],
+    correct:0, skill:"Colons",
+    explanation:"A colon introduces a list after a complete sentence." },
+]);
+
+addSection(6, "math", "Math", 35*60, [
+  { id:"g6m1", text:"What is 24 × 35?",
+    choices:["740","790","840","860"], correct:2, skill:"Multiplication",
+    explanation:"24 × 35 = 24 × 30 + 24 × 5 = 720 + 120 = 840." },
+  { id:"g6m2", text:"What is 756 ÷ 12?",
+    choices:["58","63","65","72"], correct:1, skill:"Division",
+    explanation:"12 × 63 = 756, so 756 ÷ 12 = 63." },
+  { id:"g6m3", text:"What is 2/3 of 24?",
+    choices:["8","12","16","18"], correct:2, skill:"Fractions",
+    explanation:"24 ÷ 3 = 8 (one-third), and 8 × 2 = 16 (two-thirds)." },
+  { id:"g6m4", text:"Solve: 5/6 − 1/3 = ?",
+    choices:["1/2","1/3","1/6","2/3"], correct:0, skill:"Subtracting fractions",
+    explanation:"Common denominator 6: 5/6 − 2/6 = 3/6 = 1/2." },
+  { id:"g6m5", text:"What is 0.25 expressed as a percent?",
+    choices:["2.5%","25%","0.25%","250%"], correct:1, skill:"Decimals to percent",
+    explanation:"Multiply by 100 to convert decimal to percent: 0.25 × 100 = 25%." },
+  { id:"g6m6", text:"A shirt that normally costs $40 is on sale for 25% off. What is the sale price?",
+    choices:["$10","$15","$25","$30"], correct:3, skill:"Percent",
+    explanation:"25% of $40 = $10 discount. $40 − $10 = $30." },
+  { id:"g6m7", text:"Solve: −7 + 4 = ?",
+    choices:["−11","−3","3","11"], correct:1, skill:"Integers",
+    explanation:"On a number line, start at −7 and move 4 right → −3." },
+  { id:"g6m8", text:"Solve: −5 × (−3) = ?",
+    choices:["−15","−8","8","15"], correct:3, skill:"Integers",
+    explanation:"A negative times a negative is positive: 5 × 3 = 15." },
+  { id:"g6m9", text:"Evaluate the expression when n = 6: 3n − 4",
+    choices:["10","12","14","18"], correct:2, skill:"Expressions",
+    explanation:"3(6) − 4 = 18 − 4 = 14." },
+  { id:"g6m10", text:"The ratio of cats to dogs at a shelter is 3 to 5. If there are 25 dogs, how many cats are there?",
+    choices:["8","12","14","15"], correct:3, skill:"Ratios",
+    explanation:"Set up the proportion 3/5 = x/25. Cross-multiply: 5x = 75, so x = 15." },
+  { id:"g6m11", text:"What is the area of a triangle with base 10 cm and height 6 cm?",
+    choices:["16 cm²","30 cm²","60 cm²","36 cm²"], correct:1, skill:"Area",
+    explanation:"Area of triangle = (1/2) × base × height = (1/2)(10)(6) = 30 cm²." },
+  { id:"g6m12", text:"Which number is a prime number?",
+    choices:["9","15","17","21"], correct:2, skill:"Number theory",
+    explanation:"A prime has only two factors, 1 and itself. 17 is prime (9 = 3×3, 15 = 3×5, 21 = 3×7)." },
+  { id:"g6m13", text:"What is the value of 4³?",
+    choices:["12","16","64","81"], correct:2, skill:"Exponents",
+    explanation:"4³ = 4 × 4 × 4 = 64." },
+  { id:"g6m14", text:"The mean of 6, 8, 10, 12, and 14 is —",
+    choices:["8","9","10","12"], correct:2, skill:"Statistics",
+    explanation:"Sum = 50, count = 5, mean = 50 ÷ 5 = 10." },
+  { id:"g6m15", text:"Solve for x: x + 9 = 17",
+    choices:["6","8","9","26"], correct:1, skill:"Equations",
+    explanation:"Subtract 9 from both sides: x = 17 − 9 = 8." },
+]);
+
+addSection(6, "science", "Science", 20*60, [
+  { id:"g6s1", text:"Which structure controls the activities of a cell?",
+    choices:["Cell wall","Nucleus","Cytoplasm","Mitochondria"], correct:1, skill:"Cells",
+    explanation:"The nucleus is the cell's control center; it holds DNA and directs cell activities." },
+  { id:"g6s2", text:"Which organelle produces most of the energy a cell needs?",
+    choices:["Nucleus","Ribosome","Mitochondria","Vacuole"], correct:2, skill:"Cells",
+    explanation:"Mitochondria are the \"powerhouses\" of the cell, generating energy through cellular respiration." },
+  { id:"g6s3", text:"Which layer of the Earth is the thickest?",
+    choices:["Crust","Mantle","Outer core","Inner core"], correct:1, skill:"Earth science",
+    explanation:"The mantle is by far the thickest layer of Earth (about 2,900 km thick)." },
+  { id:"g6s4", text:"Plate tectonics best explains —",
+    choices:["the water cycle","earthquakes and volcanoes","weather patterns","day and night"], correct:1, skill:"Plate tectonics",
+    explanation:"Movement of Earth's tectonic plates causes earthquakes, volcanoes, and mountain building." },
+  { id:"g6s5", text:"What is photosynthesis?",
+    choices:["Plants breaking down food","Plants making food using sunlight","Animals digesting plants","Water moving up a stem"], correct:1, skill:"Photosynthesis",
+    explanation:"Plants use sunlight, water, and carbon dioxide to make glucose (food) and release oxygen." },
+  { id:"g6s6", text:"Which of these is an example of kinetic energy?",
+    choices:["A book sitting on a shelf","A stretched rubber band","A car driving down a road","Water at the top of a dam"], correct:2, skill:"Energy",
+    explanation:"Kinetic energy is the energy of motion. A moving car has kinetic energy." },
+  { id:"g6s7", text:"Which best describes a hypothesis?",
+    choices:["A proven fact","A testable explanation","A summary of an experiment","An unsupported guess"], correct:1, skill:"Scientific method",
+    explanation:"A hypothesis is a tentative, testable explanation for an observation — a prediction that can be checked." },
+  { id:"g6s8", text:"What is the SI unit of force?",
+    choices:["Joule","Kilogram","Newton","Watt"], correct:2, skill:"Units",
+    explanation:"Force is measured in Newtons (N) in the SI system." },
+  { id:"g6s9", text:"Which of these planets is a gas giant?",
+    choices:["Mars","Earth","Jupiter","Mercury"], correct:2, skill:"Solar system",
+    explanation:"Jupiter is the largest gas giant. The terrestrial (rocky) planets are Mercury, Venus, Earth, and Mars." },
+  { id:"g6s10", text:"DNA is found mainly in which part of the cell?",
+    choices:["Mitochondria","Ribosome","Nucleus","Cell membrane"], correct:2, skill:"Genetics",
+    explanation:"The vast majority of a cell's DNA is in the nucleus. (A small amount is also found in mitochondria.)" },
+  { id:"g6s11", text:"Which of the following is a chemical change?",
+    choices:["Ice melting","Sugar dissolving in water","Iron rusting","Water boiling"], correct:2, skill:"Chemical change",
+    explanation:"Rusting forms a new substance (iron oxide) — that's a chemical change. The others are physical changes." },
+  { id:"g6s12", text:"What is the role of decomposers in an ecosystem?",
+    choices:["They make food using sunlight.","They eat plants.","They break down dead organisms and return nutrients to the soil.","They hunt other animals."], correct:2, skill:"Ecosystems",
+    explanation:"Decomposers (bacteria, fungi) recycle nutrients by breaking down dead organisms." },
+  { id:"g6s13", text:"Which type of rock forms from cooled magma or lava?",
+    choices:["Sedimentary","Metamorphic","Igneous","Fossil"], correct:2, skill:"Rocks",
+    explanation:"Igneous rock forms from cooled molten material (magma or lava)." },
+  { id:"g6s14", text:"Sound travels FASTEST through —",
+    choices:["air","water","steel","a vacuum"], correct:2, skill:"Waves",
+    explanation:"Sound travels faster in solids than in liquids or gases because particles are closer together. It cannot travel through a vacuum." },
+  { id:"g6s15", text:"Which is NOT a renewable energy source?",
+    choices:["Wind","Solar","Coal","Hydroelectric"], correct:2, skill:"Energy resources",
+    explanation:"Coal is a fossil fuel — nonrenewable on human timescales." },
+]);
+
+addSection(6, "social", "Social Studies", 20*60, [
+  { id:"g6ss1", text:"The Nile River was MOST important to the development of which civilization?",
+    choices:["Ancient Greece","Ancient Egypt","Ancient China","Ancient Rome"], correct:1, skill:"Ancient civilizations",
+    explanation:"The Nile provided water, fertile soil, and transportation that made ancient Egyptian civilization possible." },
+  { id:"g6ss2", text:"In a democracy, government leaders are chosen by —",
+    choices:["heredity","appointment by the military","the people through elections","religious leaders"], correct:2, skill:"Government",
+    explanation:"In a democracy, citizens vote to choose their leaders." },
+  { id:"g6ss3", text:"What is the main idea of supply and demand?",
+    choices:["Prices change based on availability and how much people want a product.","Government sets every price.","Only producers control prices.","Customers always get free goods."], correct:0, skill:"Economics",
+    explanation:"In a market economy, prices rise when demand exceeds supply and fall when supply exceeds demand." },
+  { id:"g6ss4", text:"The continent that contains the Sahara Desert is —",
+    choices:["Asia","Africa","Australia","South America"], correct:1, skill:"Geography",
+    explanation:"The Sahara is the world's largest hot desert, spanning much of North Africa." },
+  { id:"g6ss5", text:"Which line of latitude is at 0 degrees?",
+    choices:["Tropic of Cancer","Prime Meridian","Equator","Tropic of Capricorn"], correct:2, skill:"Map skills",
+    explanation:"The equator is the 0° line of latitude. The Prime Meridian is the 0° line of longitude." },
+  { id:"g6ss6", text:"The Magna Carta is important because it —",
+    choices:["started the Roman Empire","limited the power of the king","ended slavery in the United States","declared independence from Britain"], correct:1, skill:"World history",
+    explanation:"Signed in 1215, the Magna Carta established that even the king was subject to the law." },
+  { id:"g6ss7", text:"Which best describes a peninsula?",
+    choices:["Land completely surrounded by water","Land surrounded by water on three sides","A small mountain","A long, narrow river"], correct:1, skill:"Geography",
+    explanation:"A peninsula is land that juts into water, surrounded on three sides by water." },
+  { id:"g6ss8", text:"Which type of government is led by a single ruler with absolute power?",
+    choices:["Democracy","Republic","Monarchy or dictatorship","Federation"], correct:2, skill:"Government",
+    explanation:"Absolute monarchies and dictatorships concentrate power in one ruler." },
+  { id:"g6ss9", text:"The first 10 amendments to the U.S. Constitution are known as —",
+    choices:["the Articles of Confederation","the Declaration of Independence","the Bill of Rights","the Federalist Papers"], correct:2, skill:"U.S. government",
+    explanation:"The first 10 amendments — the Bill of Rights — protect individual liberties." },
+  { id:"g6ss10", text:"Which civilization is best known for democracy in the ancient world?",
+    choices:["Egypt","Persia","Athens (Greece)","Babylon"], correct:2, skill:"Ancient civilizations",
+    explanation:"Ancient Athens developed an early form of direct democracy in the 5th century BCE." },
+  { id:"g6ss11", text:"The Silk Road was important because it —",
+    choices:["was a railroad in Asia","connected trade between Asia and Europe","was a battleship route","was used only by religious leaders"], correct:1, skill:"World history",
+    explanation:"The Silk Road was a network of trade routes connecting East Asia to the Middle East and Europe." },
+  { id:"g6ss12", text:"Which document declared the American colonies' independence from Britain?",
+    choices:["The Constitution","The Bill of Rights","The Declaration of Independence","The Mayflower Compact"], correct:2, skill:"U.S. history",
+    explanation:"The Declaration of Independence (1776) declared the colonies free from British rule." },
+  { id:"g6ss13", text:"What is GDP a measure of?",
+    choices:["A country's population","The total value of goods and services produced in a country","The number of leaders","The size of a country in square miles"], correct:1, skill:"Economics",
+    explanation:"Gross Domestic Product (GDP) measures the total market value of goods and services produced." },
+  { id:"g6ss14", text:"The Mississippi River served what important role for the United States in the 1800s?",
+    choices:["A major route for trade and transportation","A border with Canada","A source of gold","An ocean for ships"], correct:0, skill:"U.S. geography",
+    explanation:"The Mississippi was a vital commercial waterway, especially for shipping cotton, grain, and other goods." },
+  { id:"g6ss15", text:"Which of these is an example of a CITIZEN'S responsibility?",
+    choices:["Watching television","Voting in elections","Owning a car","Joining a sports team"], correct:1, skill:"Civics",
+    explanation:"Voting is a key civic responsibility in a democracy." },
+]);
+
+addSection(6, "spelling", "Spelling", 12*60, [
+  { id:"g6sp1", text:"Which word is spelled correctly?",
+    choices:["embarass","embarrass","embaras","embarrase"], correct:1, skill:"Common spelling",
+    explanation:"Embarrass — double r, double s." },
+  { id:"g6sp2", text:"Which word is spelled correctly?",
+    choices:["mispell","misspell","mispel","missspell"], correct:1, skill:"Prefixes",
+    explanation:"Mis + spell = misspell. Keep both s's." },
+  { id:"g6sp3", text:"Which word is spelled INCORRECTLY?",
+    choices:["accommodate","occurrence","privilege","wierd"], correct:3, skill:"Misspelled",
+    explanation:"\"Wierd\" should be WEIRD." },
+  { id:"g6sp4", text:"Which is the correct spelling?",
+    choices:["acheive","achieve","acheeve","achievve"], correct:1, skill:"i before e",
+    explanation:"Achieve — \"i before e except after c.\"" },
+  { id:"g6sp5", text:"Which word is spelled correctly?",
+    choices:["enviroment","environment","enviornment","environement"], correct:1, skill:"Common spelling",
+    explanation:"Environment — don't drop the \"n\": en-VI-RON-ment." },
+  { id:"g6sp6", text:"Which is the correct spelling?",
+    choices:["arguement","argument","argumant","arguemant"], correct:1, skill:"Common spelling",
+    explanation:"Argument — drop the silent \"e\" from \"argue\" before adding -ment." },
+  { id:"g6sp7", text:"Which word is spelled INCORRECTLY?",
+    choices:["pursue","commitment","existance","schedule"], correct:2, skill:"Misspelled",
+    explanation:"Existence ends with -ence, not -ance." },
+  { id:"g6sp8", text:"Choose the correctly spelled word: \"She made a ___ decision.\"",
+    choices:["consious","conscience","conscious","conscius"], correct:2, skill:"Common spelling",
+    explanation:"Conscious — \"con-SCI-ous\" — aware of." },
+  { id:"g6sp9", text:"Which word is spelled correctly?",
+    choices:["maintainance","maintenance","maintinance","maintenence"], correct:1, skill:"Common spelling",
+    explanation:"Maintenance: \"main-TEN-ance.\"" },
+  { id:"g6sp10", text:"Which is the correct spelling?",
+    choices:["rythm","rythym","rhythm","rhytm"], correct:2, skill:"Tricky spellings",
+    explanation:"Rhythm — no vowels between the consonants \"thm.\"" },
+  { id:"g6sp11", text:"Which word is spelled INCORRECTLY?",
+    choices:["judgment","truly","arguement","sincerely"], correct:2, skill:"Misspelled",
+    explanation:"\"Arguement\" should be \"argument\" — no \"e\" after \"argu.\"" },
+  { id:"g6sp12", text:"Which is the correct spelling?",
+    choices:["acommodate","accomodate","accommodate","acomodate"], correct:2, skill:"Doubling rules",
+    explanation:"Accommodate — double c AND double m." },
+  { id:"g6sp13", text:"Choose the correctly spelled word: \"The book was very ___.\"",
+    choices:["interresting","intresting","interesting","interestng"], correct:2, skill:"Common spelling",
+    explanation:"Interesting — \"IN-ter-est-ing.\"" },
+  { id:"g6sp14", text:"Which is the correct spelling?",
+    choices:["foreign","foriegn","forein","forreign"], correct:0, skill:"i before e exception",
+    explanation:"Foreign is an exception: e before i, despite no preceding c." },
+  { id:"g6sp15", text:"Which word is spelled correctly?",
+    choices:["independance","independence","independense","independants"], correct:1, skill:"Common spelling",
+    explanation:"Independence ends with -ence." },
+]);
+
+/* --- GRADES 7-12 placeholder (framework hook) --- */
+[7,8,9,10,11,12].forEach(g => { QUESTION_BANK[g] = QUESTION_BANK[g] || {}; });
+
+/* ==========================================================================
+   APP STATE
+   ========================================================================== */
+const SUBJECT_ORDER = ["reading","vocabulary","language","math","science","social","spelling"];
+
+const state = {
+  grade: null,
+  mode: null,            // "single" or "battery"
+  sectionsQueue: [],     // list of subject keys for current run
+  sectionIndex: 0,
+  questionIndex: 0,
+  answers: {},           // questionId -> { choice, timeSpent, flagged }
+  sectionStartTime: null,
+  sectionEndTime: null,
+  sectionResults: [],    // accumulated per-section results
+  timerInterval: null,
+  remainingSec: 0,
+  questionStart: 0,
+  pendingConfirm: null,
+};
+
+/* ==========================================================================
+   SCREEN MANAGEMENT
+   ========================================================================== */
+function show(screenId) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById(screenId).classList.remove("hidden");
+  // header controls
+  const isHome = screenId === "screen-home";
+  document.getElementById("btnHome").classList.toggle("hidden", isHome);
+  document.getElementById("btnExit").classList.toggle("hidden", screenId !== "screen-test");
+  document.getElementById("timerLabel").classList.toggle("hidden", screenId !== "screen-test");
+  document.getElementById("ctxLabel").classList.toggle("hidden", isHome);
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+function setContextLabel() {
+  const el = document.getElementById("ctxLabel");
+  if (!state.grade) { el.classList.add("hidden"); return; }
+  let txt = `Grade ${state.grade}`;
+  if (state.mode === "battery") txt += " · Full battery";
+  else if (state.sectionsQueue.length) {
+    const k = state.sectionsQueue[state.sectionIndex];
+    txt += " · " + (QUESTION_BANK[state.grade][k]?.name || k);
+  }
+  el.textContent = txt;
+}
+
+/* ==========================================================================
+   HOME SCREEN
+   ========================================================================== */
+function renderHome() {
+  const grid = document.getElementById("gradeGrid");
+  grid.innerHTML = "";
+  for (let g = 5; g <= 12; g++) {
+    const subjects = QUESTION_BANK[g] || {};
+    const totalQs = Object.values(subjects).reduce((n, s) => n + (s.questions?.length || 0), 0);
+    const ready = totalQs >= 40;  // arbitrary "ready" threshold
+    const tile = document.createElement("button");
+    tile.className = "tile" + (totalQs === 0 ? " disabled" : "");
+    tile.innerHTML = `
+      <h3>Grade ${g}</h3>
+      <div class="sub">${totalQs} questions across ${Object.keys(subjects).length} subjects</div>
+      <div style="margin-top:8px;"><span class="pill ${ready ? 'good' : (totalQs ? 'warn' : 'bad')}">
+        ${ready ? 'Ready' : (totalQs ? 'Partial' : 'Coming soon')}</span></div>
+    `;
+    if (totalQs === 0) tile.disabled = true;
+    tile.addEventListener("click", () => { if (totalQs > 0) chooseGrade(g); });
+    grid.appendChild(tile);
+  }
+}
+
+function chooseGrade(g) {
+  state.grade = g;
+  state.mode = null;
+  state.sectionsQueue = [];
+  renderSubjectScreen();
+  setContextLabel();
+  show("screen-subject");
+}
+
+/* ==========================================================================
+   SUBJECT SCREEN
+   ========================================================================== */
+function renderSubjectScreen() {
+  document.getElementById("subjectTitle").textContent = `Grade ${state.grade} — choose a subject`;
+  const grid = document.getElementById("subjectGrid");
+  grid.innerHTML = "";
+  const subjects = QUESTION_BANK[state.grade] || {};
+  const keys = SUBJECT_ORDER.filter(k => subjects[k]);
+  if (keys.length === 0) {
+    grid.innerHTML = `<p class="muted">No subjects loaded for grade ${state.grade} yet.</p>`;
+    document.getElementById("btnFullBattery").disabled = true;
+    return;
+  }
+  document.getElementById("btnFullBattery").disabled = false;
+  keys.forEach(k => {
+    const s = subjects[k];
+    const tile = document.createElement("button");
+    tile.className = "tile";
+    const mins = Math.round(s.timeLimitSec / 60);
+    tile.innerHTML = `
+      <h3>${s.name}</h3>
+      <div class="sub">${s.questions.length} questions · ${mins} min</div>
+    `;
+    tile.addEventListener("click", () => startTest("single", [k]));
+    grid.appendChild(tile);
+  });
+}
+
+function startTest(mode, sectionKeys) {
+  state.mode = mode;
+  state.sectionsQueue = sectionKeys;
+  state.sectionIndex = 0;
+  state.sectionResults = [];
+  beginSection();
+}
+
+/* ==========================================================================
+   TEST SCREEN
+   ========================================================================== */
+function beginSection() {
+  const key = state.sectionsQueue[state.sectionIndex];
+  const section = QUESTION_BANK[state.grade][key];
+  state.questionIndex = 0;
+  state.answers = {};
+  state.remainingSec = section.timeLimitSec;
+  state.sectionStartTime = Date.now();
+  setContextLabel();
+  document.getElementById("testSectionTitle").textContent = section.name;
+  startTimer();
+  renderQuestion();
+  show("screen-test");
+}
+
+function startTimer() {
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  updateTimerLabel();
+  state.timerInterval = setInterval(() => {
+    state.remainingSec--;
+    if (state.remainingSec <= 0) {
+      state.remainingSec = 0;
+      updateTimerLabel();
+      clearInterval(state.timerInterval);
+      finishSection(true);
+      return;
+    }
+    updateTimerLabel();
+  }, 1000);
+}
+function fmtTime(s) {
+  const m = Math.floor(s/60), ss = s % 60;
+  return `${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+}
+function updateTimerLabel() {
+  const el = document.getElementById("timerLabel");
+  el.textContent = fmtTime(state.remainingSec);
+  el.classList.remove("warn","danger");
+  if (state.remainingSec <= 60) el.classList.add("danger");
+  else if (state.remainingSec <= 180) el.classList.add("warn");
+}
+
+function currentSection() {
+  return QUESTION_BANK[state.grade][state.sectionsQueue[state.sectionIndex]];
+}
+function currentQuestion() {
+  return currentSection().questions[state.questionIndex];
+}
+
+function renderQuestion() {
+  const sec = currentSection();
+  const q = currentQuestion();
+  state.questionStart = Date.now();
+  document.getElementById("testSectionInfo").textContent =
+    `Question ${state.questionIndex + 1} of ${sec.questions.length}`;
+  document.getElementById("progressBar").style.width =
+    ((state.questionIndex) / sec.questions.length * 100) + "%";
+
+  const area = document.getElementById("questionArea");
+  let html = "";
+  // group passage if previous question shares passageId? We'll just show passage on each question if present.
+  if (q.passage) {
+    html += `<div class="passage">
+      ${q.passageTitle ? `<h4>${escapeHtml(q.passageTitle)}</h4>` : ""}
+      <div>${escapeHtml(q.passage).replace(/\n/g,"<br>")}</div>
+    </div>`;
+  }
+  if (q.skill) html += `<div class="qmeta">Skill: ${escapeHtml(q.skill)}</div>`;
+  html += `<div class="qtext">${escapeHtml(q.text)}</div>`;
+  html += `<div class="choices">`;
+  const letters = ["A","B","C","D","E"];
+  const selected = state.answers[q.id]?.choice;
+  q.choices.forEach((c, i) => {
+    html += `<label class="choice ${selected === i ? "selected" : ""}" data-i="${i}">
+      <input type="radio" name="ans" value="${i}" ${selected === i ? "checked" : ""} />
+      <span class="letter">${letters[i]}.</span>
+      <span>${escapeHtml(c)}</span>
+    </label>`;
+  });
+  html += `</div>`;
+  area.innerHTML = html;
+
+  area.querySelectorAll(".choice").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = parseInt(el.dataset.i, 10);
+      area.querySelectorAll(".choice").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      el.querySelector("input").checked = true;
+      recordAnswer(i);
+    });
+  });
+
+  document.getElementById("btnFlag").textContent =
+    state.answers[q.id]?.flagged ? "🚩 Unflag" : "🚩 Flag for review";
+
+  document.getElementById("btnPrev").disabled = state.questionIndex === 0;
+  const isLast = state.questionIndex === sec.questions.length - 1;
+  document.getElementById("btnNext").classList.toggle("hidden", isLast);
+  document.getElementById("btnSubmitSection").classList.toggle("hidden", !isLast);
+
+  renderQuestionJump();
+}
+
+function renderQuestionJump() {
+  const sec = currentSection();
+  const jump = document.getElementById("qjump");
+  jump.innerHTML = "";
+  sec.questions.forEach((q, i) => {
+    const b = document.createElement("button");
+    b.textContent = i + 1;
+    if (i === state.questionIndex) b.classList.add("cur");
+    else if (state.answers[q.id]?.flagged) b.classList.add("flagged");
+    else if (state.answers[q.id]?.choice !== undefined) b.classList.add("answered");
+    b.addEventListener("click", () => { recordTimeSpent(); state.questionIndex = i; renderQuestion(); });
+    jump.appendChild(b);
+  });
+}
+
+function recordAnswer(choiceIndex) {
+  const q = currentQuestion();
+  const prev = state.answers[q.id] || { timeSpent: 0, flagged: false };
+  prev.choice = choiceIndex;
+  state.answers[q.id] = prev;
+}
+function recordTimeSpent() {
+  const q = currentQuestion();
+  const elapsed = (Date.now() - state.questionStart) / 1000;
+  const prev = state.answers[q.id] || { timeSpent: 0, flagged: false };
+  prev.timeSpent = (prev.timeSpent || 0) + elapsed;
+  state.answers[q.id] = prev;
+}
+function toggleFlag() {
+  const q = currentQuestion();
+  const prev = state.answers[q.id] || { timeSpent: 0, flagged: false };
+  prev.flagged = !prev.flagged;
+  state.answers[q.id] = prev;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  recordTimeSpent();
+  const sec = currentSection();
+  if (state.questionIndex < sec.questions.length - 1) {
+    state.questionIndex++;
+    renderQuestion();
+  }
+}
+function prevQuestion() {
+  recordTimeSpent();
+  if (state.questionIndex > 0) {
+    state.questionIndex--;
+    renderQuestion();
+  }
+}
+
+/* ==========================================================================
+   SECTION COMPLETION + SCORING
+   ========================================================================== */
+function finishSection(timeExpired) {
+  recordTimeSpent();
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  const sec = currentSection();
+  const key = state.sectionsQueue[state.sectionIndex];
+  const items = sec.questions.map(q => {
+    const a = state.answers[q.id] || {};
+    return {
+      id: q.id, text: q.text, passageTitle: q.passageTitle || "",
+      choices: q.choices, correct: q.correct, chosen: a.choice,
+      isCorrect: a.choice === q.correct, skipped: a.choice === undefined,
+      explanation: q.explanation, timeSpent: Math.round((a.timeSpent || 0) * 10) / 10,
+      flagged: !!a.flagged, skill: q.skill || ""
+    };
+  });
+  const correctCount = items.filter(i => i.isCorrect).length;
+  const sectionResult = {
+    key, name: sec.name, total: items.length, correct: correctCount,
+    pct: items.length ? Math.round(correctCount / items.length * 100) : 0,
+    timeAllowedSec: sec.timeLimitSec,
+    timeUsedSec: Math.round((Date.now() - state.sectionStartTime) / 1000),
+    timeExpired: !!timeExpired,
+    items
+  };
+  state.sectionResults.push(sectionResult);
+
+  if (state.sectionIndex < state.sectionsQueue.length - 1) {
+    state.sectionIndex++;
+    beginSection();
+  } else {
+    renderResults();
+    show("screen-results");
+  }
+}
+
+/* ==========================================================================
+   RESULTS
+   ========================================================================== */
+function renderResults() {
+  const totalQs = state.sectionResults.reduce((n, r) => n + r.total, 0);
+  const totalCorrect = state.sectionResults.reduce((n, r) => n + r.correct, 0);
+  const pct = totalQs ? Math.round(totalCorrect / totalQs * 100) : 0;
+  const totalTime = state.sectionResults.reduce((n, r) => n + r.timeUsedSec, 0);
+
+  document.getElementById("resultsTitle").textContent =
+    state.mode === "battery"
+      ? `Grade ${state.grade} — Full Battery Results`
+      : `Grade ${state.grade} — ${state.sectionResults[0].name} Results`;
+  document.getElementById("resultsSubtitle").textContent =
+    new Date().toLocaleString();
+
+  const circle = document.getElementById("scoreCircle");
+  circle.style.setProperty("--p", pct);
+  document.getElementById("scorePct").textContent = pct + "%";
+  document.getElementById("scoreFrac").textContent = `${totalCorrect} / ${totalQs} correct`;
+  document.getElementById("scoreTime").textContent =
+    `Total time: ${fmtTime(totalTime)} across ${state.sectionResults.length} section(s)`;
+
+  // analysis
+  let analysis = "";
+  if (pct >= 90) analysis = "Excellent work — solid mastery on this set.";
+  else if (pct >= 75) analysis = "Strong showing. A few items to review below.";
+  else if (pct >= 60) analysis = "Passing range. Review the explanations to shore up gaps.";
+  else analysis = "Plenty to practice. Walk through each explanation below — these are good teaching moments.";
+  document.getElementById("scoreAnalysis").textContent = analysis;
+
+  // breakdown
+  const bd = document.getElementById("subjectBreakdown");
+  bd.innerHTML = "";
+  if (state.sectionResults.length > 1) {
+    const head = document.createElement("div");
+    head.className = "row-bd";
+    head.style.fontWeight = "600";
+    head.innerHTML = `<div>Section</div><div>Score</div><div>Time</div>`;
+    bd.appendChild(head);
+  }
+  state.sectionResults.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "row-bd";
+    row.innerHTML = `
+      <div>${r.name} ${r.timeExpired ? '<span class="pill warn">Time up</span>' : ''}</div>
+      <div>${r.correct}/${r.total} (${r.pct}%)</div>
+      <div>${fmtTime(r.timeUsedSec)}</div>
+    `;
+    bd.appendChild(row);
+  });
+
+  // review list
+  const review = document.getElementById("reviewList");
+  review.innerHTML = "";
+  state.sectionResults.forEach(r => {
+    const h = document.createElement("h4");
+    h.style.margin = "16px 0 8px";
+    h.textContent = r.name;
+    review.appendChild(h);
+    r.items.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "review-q";
+      const status = item.skipped
+        ? '<span class="badge skip">Skipped</span>'
+        : (item.isCorrect ? '<span class="badge ok">Correct</span>' : '<span class="badge no">Incorrect</span>');
+      const letters = ["A","B","C","D","E"];
+      const choicesHtml = item.choices.map((c, i) => {
+        let cls = "choice";
+        if (i === item.correct) cls += " correct";
+        if (item.chosen === i && i !== item.correct) cls += " incorrect";
+        return `<div class="${cls}"><span class="letter">${letters[i]}.</span><span>${escapeHtml(c)}</span></div>`;
+      }).join("");
+      div.innerHTML = `
+        <div class="row" style="margin-bottom:6px;">
+          <div><strong>Q${idx+1}.</strong> ${status}
+            <span class="muted" style="margin-left:8px;">⏱ ${item.timeSpent}s${item.skill ? ' · ' + escapeHtml(item.skill) : ''}</span>
+          </div>
+        </div>
+        ${item.passageTitle ? `<div class="muted" style="margin-bottom:4px;">Passage: ${escapeHtml(item.passageTitle)}</div>` : ""}
+        <div class="qtext" style="font-size:15px;">${escapeHtml(item.text)}</div>
+        <div class="choices" style="margin-bottom:8px;">${choicesHtml}</div>
+        <div class="explain"><strong>Explanation:</strong> ${escapeHtml(item.explanation || "")}</div>
+      `;
+      review.appendChild(div);
+    });
+  });
+}
+
+/* ==========================================================================
+   EXPORTS
+   ========================================================================== */
+function csvEscape(s) {
+  if (s === null || s === undefined) return "";
+  s = String(s);
+  if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function exportCsv() {
+  const headers = ["Grade","Section","Q#","Question","Skill","ChoiceA","ChoiceB","ChoiceC","ChoiceD",
+                   "CorrectLetter","StudentLetter","Status","TimeSpentSec","Explanation"];
+  const rows = [headers.join(",")];
+  const letters = ["A","B","C","D","E"];
+  state.sectionResults.forEach(r => {
+    r.items.forEach((it, idx) => {
+      const status = it.skipped ? "Skipped" : (it.isCorrect ? "Correct" : "Incorrect");
+      const row = [
+        state.grade, r.name, idx+1,
+        it.passageTitle ? `[${it.passageTitle}] ${it.text}` : it.text,
+        it.skill,
+        it.choices[0] || "", it.choices[1] || "", it.choices[2] || "", it.choices[3] || "",
+        letters[it.correct],
+        it.chosen === undefined ? "" : letters[it.chosen],
+        status,
+        it.timeSpent,
+        it.explanation
+      ].map(csvEscape).join(",");
+      rows.push(row);
+    });
+  });
+  downloadBlob(rows.join("\n"), "text/csv;charset=utf-8",
+    `practice-test-grade${state.grade}-${dateStamp()}.csv`);
+}
+function exportJson() {
+  const payload = {
+    grade: state.grade,
+    mode: state.mode,
+    takenAt: new Date().toISOString(),
+    sections: state.sectionResults
+  };
+  downloadBlob(JSON.stringify(payload, null, 2), "application/json",
+    `practice-test-grade${state.grade}-${dateStamp()}.json`);
+}
+function dateStamp() {
+  const d = new Date();
+  return d.toISOString().replace(/[:.]/g,"-").slice(0,16);
+}
+function downloadBlob(content, type, filename) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+/* ==========================================================================
+   MODAL + EVENTS
+   ========================================================================== */
+function showModal(title, body, onConfirm) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").textContent = body;
+  state.pendingConfirm = onConfirm;
+  document.getElementById("modal").classList.add("show");
+}
+function hideModal() {
+  document.getElementById("modal").classList.remove("show");
+  state.pendingConfirm = null;
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function goHome() {
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  state.grade = null; state.mode = null;
+  state.sectionsQueue = []; state.sectionResults = []; state.answers = {};
+  setContextLabel();
+  show("screen-home");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderHome();
+  show("screen-home");
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    const inTest = !document.getElementById("screen-test").classList.contains("hidden");
+    if (inTest) {
+      showModal("Return to home?", "Your current test progress will be lost.", goHome);
+    } else goHome();
+  });
+  document.getElementById("btnExit").addEventListener("click", () => {
+    showModal("Exit this test?", "Your progress in this section will be lost.", goHome);
+  });
+  document.getElementById("btnBackToHome").addEventListener("click", goHome);
+  document.getElementById("btnFullBattery").addEventListener("click", () => {
+    const keys = SUBJECT_ORDER.filter(k => QUESTION_BANK[state.grade]?.[k]);
+    if (keys.length) startTest("battery", keys);
+  });
+  document.getElementById("btnPrev").addEventListener("click", prevQuestion);
+  document.getElementById("btnNext").addEventListener("click", nextQuestion);
+  document.getElementById("btnSubmitSection").addEventListener("click", () => {
+    showModal("Submit section?", "You won't be able to change answers after submitting.",
+      () => finishSection(false));
+  });
+  document.getElementById("btnFlag").addEventListener("click", toggleFlag);
+  document.getElementById("modalCancel").addEventListener("click", hideModal);
+  document.getElementById("modalConfirm").addEventListener("click", () => {
+    const fn = state.pendingConfirm; hideModal(); if (fn) fn();
+  });
+  document.getElementById("btnExportCsv").addEventListener("click", exportCsv);
+  document.getElementById("btnExportJson").addEventListener("click", exportJson);
+  document.getElementById("btnPrint").addEventListener("click", () => window.print());
+  document.getElementById("btnRetake").addEventListener("click", () => {
+    if (state.sectionResults.length) {
+      const keys = state.sectionResults.map(r => r.key);
+      const mode = state.mode;
+      state.sectionResults = [];
+      startTest(mode, keys);
+    }
+  });
+  document.getElementById("btnResultsHome").addEventListener("click", goHome);
+
+  // Warn before reload during test
+  window.addEventListener("beforeunload", (e) => {
+    const inTest = !document.getElementById("screen-test").classList.contains("hidden");
+    if (inTest) { e.preventDefault(); e.returnValue = ""; }
+  });
+});
+</script>
+</body>
+</html>

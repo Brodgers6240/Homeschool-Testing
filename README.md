@@ -9,7 +9,7 @@ A self-contained, Stanford 10-style practice test for homeschoolers in grades 5�
 
 ## Features
 
-- **Grade selector home screen** (5–12). Grades 5 and 6 ship with full question banks (105 questions per grade across 7 subjects). Grades 7–12 show "Coming soon" — the framework is wired up, you just need to add questions.
+- **Grade selector home screen** (5–12). Grades 5, 6, 7, 8, and 9 ship with full question banks (105 questions per grade across 7 subjects — 525 questions total). Grades 10–12 show "Coming soon" — the framework is wired up, you just need to add questions.
 - **Seven subjects per grade**: Reading Comprehension, Vocabulary, Language/Grammar, Math, Science, Social Studies, Spelling.
 - **Single subject mode** or **Full Battery** (all subjects back-to-back, each timed separately).
 - **Stanford 10-style timing**: each section has its own countdown. The timer turns yellow at 3 minutes left and red at 1 minute. The section auto-submits at zero.
